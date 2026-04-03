@@ -55,3 +55,13 @@ Thumbs.db
 .tmp/
 .temp/
 .cache/
+
+# excel temp
+~$*.xlsx
+
+# sensitive
+passwords.txt
+
+# python cache
+__pycache__/
+*.pyc
