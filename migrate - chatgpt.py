@@ -19,6 +19,7 @@ def get_connection():
 def create_tables(conn):
     with conn.cursor() as cur:
 
+        cur.execute("DROP TABLE IF EXISTS salaries;")
         cur.execute("DROP TABLE IF EXISTS members;")
 
         cur.execute("""
@@ -31,10 +32,20 @@ def create_tables(conn):
         );
         """)
 
+        cur.execute("""
+        CREATE TABLE salaries (
+            id SERIAL PRIMARY KEY,
+            budget_code TEXT,
+            first_name TEXT,
+            last_name TEXT,
+            net_amount NUMERIC
+        );
+        """)
+
     conn.commit()
 
 # =========================
-# IMPORT MEMBERS (🔥 זה החסר)
+# IMPORT MEMBERS
 # =========================
 def import_members(conn, wb):
     sheet = wb["חברים"]
@@ -56,8 +67,8 @@ def import_members(conn, wb):
 
         rows_to_insert.append((
             str(budget_code),
-            str(first_name),
-            str(last_name),
+            str(first_name).strip(),
+            str(last_name).strip(),
             int(age) if age else None
         ))
 
@@ -79,6 +90,54 @@ def import_members(conn, wb):
     print(f"✅ inserted {len(rows_to_insert)} members")
 
 # =========================
+# IMPORT SALARIES 🔥 חדש
+# =========================
+def import_salaries(conn, wb):
+    sheet = wb["הכנסות שכר "]
+
+    rows_to_insert = []
+
+    for row in sheet.iter_rows(min_row=2, values_only=True):
+
+        first_name = row[1]   # תעדכן אם צריך
+        last_name = row[2]
+        budget_code = row[0]
+
+        net_amount = row[6]           # סכום נטו
+        #net_amount_updated = row[6]   # סכום נטו חדש
+
+        if not budget_code or not str(budget_code).isdigit():
+            continue
+
+        if not first_name or not last_name:
+            continue
+
+        rows_to_insert.append((
+            str(budget_code),
+            str(first_name).strip(),
+            str(last_name).strip(),
+            float(net_amount) if net_amount else 0,
+            #float(net_amount_updated) if net_amount_updated else 0
+        ))
+
+    if not rows_to_insert:
+        print("❌ לא נמצאו משכורות")
+        return
+
+    with conn.cursor() as cur:
+        execute_values(
+            cur,
+            """
+            INSERT INTO salaries (budget_code, first_name, last_name, net_amount)
+            VALUES %s
+            """,
+            rows_to_insert
+        )
+
+    conn.commit()
+    print(f"✅ inserted {len(rows_to_insert)} salaries")
+
+# =========================
 # MAIN
 # =========================
 def main():
@@ -86,7 +145,9 @@ def main():
     wb = load_workbook(EXCEL_PATH, data_only=True)
 
     create_tables(conn)
+
     import_members(conn, wb)
+    import_salaries(conn, wb)  # 🔥 חדש
 
     conn.close()
     print("🎉 DONE")

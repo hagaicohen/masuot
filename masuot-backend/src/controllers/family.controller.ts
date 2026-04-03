@@ -29,14 +29,12 @@ function buildChildrenAndHealth(members: any[]) {
   for (const m of members) {
     const age = Number(m.age || 0);
 
-    // ילדים לפי האפיון
     if (age <= 3) children.nursery++;
     else if (age <= 6) children.kindergarten++;
     else if (age <= 12) children.primary++;
     else if (age <= 14) children.middle++;
     else if (age <= 18) children.highschool++;
 
-    // בריאות
     if (age <= 50) health.age_0_50++;
     else if (age <= 70) health.age_50_70++;
     else health.age_70_plus++;
@@ -51,9 +49,11 @@ function buildChildrenAndHealth(members: any[]) {
 function mapToInputs(family: any, members: any[]) {
   const { children, health } = buildChildrenAndHealth(members);
 
+  const salary_net = members.reduce((sum, m: any) => sum + (m.salary?.net || 0), 0);
+  
+
   return {
-    salary_net: Number(family.net_salary_updated || 0),
-    salary_net_updated: Number(family.net_salary_updated || 0),
+    salary_net,
 
     child_allowance: Number(family.child_allowance || 0),
     women_work_benefit: Number(family.women_work_benefit || 0),
@@ -81,6 +81,38 @@ function cleanMembers(rows: any[]) {
 }
 
 // =========================
+// JOIN MEMBERS + SALARIES
+// =========================
+async function getMembersWithSalary(budget_code: string) {
+  const result = await pool.query(`
+    SELECT 
+      m.first_name,
+      m.last_name,
+      m.age,
+
+      s.amount as net_amount
+
+    FROM members m
+    LEFT JOIN salary_income s
+      ON m.budget_code = s.budget_code
+      AND m.first_name = s.first_name
+      AND m.last_name = s.last_name
+
+    WHERE m.budget_code = $1
+    ORDER BY m.age DESC
+  `, [budget_code]);
+
+  const cleaned = cleanMembers(result.rows);
+
+  return cleaned.map((m: any, i: number) => ({
+    ...m,
+    salary: {
+      net: Number(result.rows[i].net_amount || 0),
+    }
+  }));
+}
+
+// =========================
 // GET FAMILY
 // =========================
 export const getFamily = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -92,11 +124,10 @@ export const getFamily = async (req: AuthRequest, res: Response): Promise<void> 
   }
 
   try {
-    const [familyRes, membersRes, salaryRes] = await Promise.all([
-      pool.query('SELECT * FROM families WHERE budget_code = $1', [budget_code]),
-      pool.query('SELECT first_name, last_name, age FROM members WHERE budget_code = $1 ORDER BY age DESC', [budget_code]),
-      pool.query('SELECT * FROM salary_income WHERE budget_code = $1', [budget_code]),
-    ]);
+    const familyRes = await pool.query(
+      'SELECT * FROM families WHERE budget_code = $1',
+      [budget_code]
+    );
 
     if (familyRes.rows.length === 0) {
       res.status(404).json({ error: 'משפחה לא נמצאה' });
@@ -104,7 +135,8 @@ export const getFamily = async (req: AuthRequest, res: Response): Promise<void> 
     }
 
     const family = familyRes.rows[0];
-    const members = cleanMembers(membersRes.rows);
+
+    const members = await getMembersWithSalary(budget_code);
 
     res.json({
       family: {
@@ -115,9 +147,7 @@ export const getFamily = async (req: AuthRequest, res: Response): Promise<void> 
 
       inputs: mapToInputs(family, members),
 
-      members,
-
-      salaries: salaryRes.rows,
+      members
     });
 
   } catch (err) {
@@ -138,13 +168,8 @@ export const getSimulation = async (req: AuthRequest, res: Response): Promise<vo
   }
 
   try {
-    const expectedSalaries = req.body?.expected_salaries as
-      { member_code: string; amount: number }[] | undefined;
-
-    const [familyRes, membersRes, salaryRes, simulation] = await Promise.all([
+    const [familyRes, simulation] = await Promise.all([
       pool.query('SELECT * FROM families WHERE budget_code = $1', [budget_code]),
-      pool.query('SELECT first_name, last_name, age FROM members WHERE budget_code = $1 ORDER BY age DESC', [budget_code]),
-      pool.query('SELECT * FROM salary_income WHERE budget_code = $1', [budget_code]),
       getSimulationData(budget_code)
     ]);
 
@@ -154,7 +179,8 @@ export const getSimulation = async (req: AuthRequest, res: Response): Promise<vo
     }
 
     const family = familyRes.rows[0];
-    const members = cleanMembers(membersRes.rows);
+
+    const members = await getMembersWithSalary(budget_code);
 
     res.json({
       family: {
@@ -166,8 +192,6 @@ export const getSimulation = async (req: AuthRequest, res: Response): Promise<vo
       inputs: mapToInputs(family, members),
 
       members,
-
-      salaries: salaryRes.rows,
 
       simulation
     });
