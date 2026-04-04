@@ -1,6 +1,5 @@
 import { Response } from 'express';
 import pool from '../db';
-import { getSimulationData } from '../services/simulator.service';
 import { AuthRequest } from '../middleware/auth.middleware';
 
 function extractBudgetCode(param: any): string {
@@ -8,7 +7,18 @@ function extractBudgetCode(param: any): string {
 }
 
 // =========================
-// חישוב ילדים ובריאות
+// GET RULES
+// =========================
+async function getRules() {
+  const result = await pool.query(`SELECT key, value FROM rules`);
+
+  return Object.fromEntries(
+    result.rows.map(r => [r.key, Number(r.value)])
+  );
+}
+
+// =========================
+// ילדים ובריאות
 // =========================
 function buildChildrenAndHealth(members: any[]) {
   const children = {
@@ -44,25 +54,26 @@ function buildChildrenAndHealth(members: any[]) {
 }
 
 // =========================
-// mapping inputs
+// inputs
 // =========================
 function mapToInputs(family: any, members: any[]) {
   const { children, health } = buildChildrenAndHealth(members);
 
-  const salary_net = members.reduce((sum, m: any) => sum + (m.salary?.net || 0), 0);
-  
+  const salary_net = members.reduce(
+    (sum, m: any) => sum + (m.salary?.net || 0),
+    0
+  );
 
   return {
     salary_net,
 
+    pension: Number(family.pension || 0),
+    survivors: Number(family.survivors || 0),
+    old_age_allowance: Number(family.old_age_allowance || 0),
     child_allowance: Number(family.child_allowance || 0),
-    women_work_benefit: Number(family.women_work_benefit || 0),
 
-    community_tax: Number(family.community_tax || 0),
-    municipal_tax: Number(family.municipal_tax || 0),
-    arnona: Number(family.arnona || 0),
-
-    travel: Number(family.travel || 0),
+    flow_income: Number(family.flow_income || 0),
+    health_cost: Number(family.health_cost || 0),
 
     children,
     health
@@ -70,7 +81,7 @@ function mapToInputs(family: any, members: any[]) {
 }
 
 // =========================
-// ניקוי שמות
+// ניקוי
 // =========================
 function cleanMembers(rows: any[]) {
   return rows.map(m => ({
@@ -81,7 +92,7 @@ function cleanMembers(rows: any[]) {
 }
 
 // =========================
-// JOIN MEMBERS + SALARIES
+// MEMBERS + SALARY
 // =========================
 async function getMembersWithSalary(budget_code: string) {
   const result = await pool.query(`
@@ -89,16 +100,16 @@ async function getMembersWithSalary(budget_code: string) {
       m.first_name,
       m.last_name,
       m.age,
-
-      s.amount as net_amount
-
+      SUM(s.amount) as net_amount,
+      SUM(s.study_fund) as study_fund,
+      SUM(s.pension_extra) as pension_extra
     FROM members m
     LEFT JOIN salary_income s
       ON m.budget_code = s.budget_code
       AND m.first_name = s.first_name
       AND m.last_name = s.last_name
-
     WHERE m.budget_code = $1
+    GROUP BY m.first_name, m.last_name, m.age
     ORDER BY m.age DESC
   `, [budget_code]);
 
@@ -108,6 +119,8 @@ async function getMembersWithSalary(budget_code: string) {
     ...m,
     salary: {
       net: Number(result.rows[i].net_amount || 0),
+      study_fund: Number(result.rows[i].study_fund || 0),
+      pension_extra: Number(result.rows[i].pension_extra || 0),
     }
   }));
 }
@@ -124,10 +137,10 @@ export const getFamily = async (req: AuthRequest, res: Response): Promise<void> 
   }
 
   try {
-    const familyRes = await pool.query(
-      'SELECT * FROM families WHERE budget_code = $1',
-      [budget_code]
-    );
+    const [familyRes, rules] = await Promise.all([
+      pool.query('SELECT * FROM families WHERE budget_code = $1', [budget_code]),
+      getRules()
+    ]);
 
     if (familyRes.rows.length === 0) {
       res.status(404).json({ error: 'משפחה לא נמצאה' });
@@ -135,19 +148,13 @@ export const getFamily = async (req: AuthRequest, res: Response): Promise<void> 
     }
 
     const family = familyRes.rows[0];
-
     const members = await getMembersWithSalary(budget_code);
 
     res.json({
-      family: {
-        budget_code: family.budget_code,
-        family_name: family.family_name,
-        family_size: Number(family.family_size || 0),
-      },
-
+      family: family, // 🔥 מחזיר הכל כמו DB
       inputs: mapToInputs(family, members),
-
-      members
+      members,
+      rules
     });
 
   } catch (err) {
@@ -157,7 +164,7 @@ export const getFamily = async (req: AuthRequest, res: Response): Promise<void> 
 };
 
 // =========================
-// GET SIMULATION
+// GET SIMULATION (NO CALC)
 // =========================
 export const getSimulation = async (req: AuthRequest, res: Response): Promise<void> => {
   const budget_code = extractBudgetCode(req.params.budget_code);
@@ -168,9 +175,9 @@ export const getSimulation = async (req: AuthRequest, res: Response): Promise<vo
   }
 
   try {
-    const [familyRes, simulation] = await Promise.all([
+    const [familyRes, rules] = await Promise.all([
       pool.query('SELECT * FROM families WHERE budget_code = $1', [budget_code]),
-      getSimulationData(budget_code)
+      getRules()
     ]);
 
     if (familyRes.rows.length === 0) {
@@ -179,21 +186,14 @@ export const getSimulation = async (req: AuthRequest, res: Response): Promise<vo
     }
 
     const family = familyRes.rows[0];
-
     const members = await getMembersWithSalary(budget_code);
 
     res.json({
-      family: {
-        budget_code: family.budget_code,
-        family_name: family.family_name,
-        family_size: Number(family.family_size || 0),
-      },
-
+      family: family,
       inputs: mapToInputs(family, members),
-
       members,
-
-      simulation
+      simulation: family, // 🔥 כל השדות מהאקסל
+      rules
     });
 
   } catch (err: any) {
