@@ -7,155 +7,129 @@ function extractBudgetCode(param: any): string {
 }
 
 // =========================
-// GET RULES
+// MEMBERS
 // =========================
-async function getRules() {
-  const result = await pool.query(`SELECT key, value FROM rules`);
+async function getMembers(budget_code: string) {
+  const result = await pool.query(`
+    SELECT 
+      first_name,
+      last_name,
+      age,
+      net_salary
+    FROM members
+    WHERE budget_code = $1
+    ORDER BY first_name, last_name
+  `, [budget_code]);
 
-  return Object.fromEntries(
-    result.rows.map(r => [r.key, Number(r.value)])
-  );
+  return result.rows.map(m => ({
+    first_name: (m.first_name || '').replace(/\s+/g, ' ').trim(),
+    last_name: (m.last_name || '').replace(/\s+/g, ' ').trim(),
+    age: Number(m.age || 0),
+    net_salary: Number(m.net_salary || 0)
+  }));
 }
 
 // =========================
-// ילדים ובריאות
+// NORMALIZE FAMILY
 // =========================
-function buildChildrenAndHealth(members: any[]) {
-  const children = {
-    nursery: 0,
-    kindergarten: 0,
-    primary: 0,
-    middle: 0,
-    highschool: 0,
+function normalizeFamily(raw: any) {
+  return {
+    budget_code: raw.budget_code,
+    family_name: raw.family_name,
+
+    // 🔥 לא לגעת בדיוק – בלי עיגול
+    family_standard: parseFloat(raw.family_standard ?? '0'),
+
+    // 🔥 השדה הקריטי מהאקסל (AD)
+    income_for_standard: Number(raw.income_for_standard ?? 0),
+
+    budget_distribution: Number(raw.budget_distribution || 0),
+    personal_bonus: Number(raw.personal_bonus || 0),
+    women_work_benefit: Number(raw.women_work_benefit || 0),
+    travel: Number(raw.travel || 0),
+    periodic_grant: Number(raw.periodic_grant || 0),
+    special_help: Number(raw.special_help || 0),
+    current_state: Number(raw.current_state || 0),
+
+    pension: Number(raw.pension || 0),
+    survivors: Number(raw.survivors || 0),
+    old_age_allowance: Number(raw.old_age_allowance || 0),
+    child_allowance: Number(raw.child_allowance || 0),
+
+    community_tax: Number(raw.community_tax || 0),
+    municipal_tax: Number(raw.municipal_tax || 0),
+    arnona: Number(raw.arnona || 0)
   };
-
-  const health = {
-    total: members.length,
-    age_0_50: 0,
-    age_50_70: 0,
-    age_70_plus: 0,
-  };
-
-  for (const m of members) {
-    const age = Number(m.age || 0);
-
-    if (age <= 3) children.nursery++;
-    else if (age <= 6) children.kindergarten++;
-    else if (age <= 12) children.primary++;
-    else if (age <= 14) children.middle++;
-    else if (age <= 18) children.highschool++;
-
-    if (age <= 50) health.age_0_50++;
-    else if (age <= 70) health.age_50_70++;
-    else health.age_70_plus++;
-  }
-
-  return { children, health };
 }
 
 // =========================
-// inputs
+// INPUTS
 // =========================
 function mapToInputs(family: any, members: any[]) {
-  const { children, health } = buildChildrenAndHealth(members);
-
   const salary_net = members.reduce(
-    (sum, m: any) => sum + (m.salary?.net || 0),
+    (sum, m) => sum + m.net_salary,
     0
   );
 
   return {
     salary_net,
+    pension: family.pension,
+    survivors: family.survivors,
+    old_age_allowance: family.old_age_allowance,
+    child_allowance: family.child_allowance,
 
-    pension: Number(family.pension || 0),
-    survivors: Number(family.survivors || 0),
-    old_age_allowance: Number(family.old_age_allowance || 0),
-    child_allowance: Number(family.child_allowance || 0),
-
-    flow_income: Number(family.flow_income || 0),
-    health_cost: Number(family.health_cost || 0),
-
-    children,
-    health
+    // 🔥 חשוב להעביר גם ל-FE אם צריך
+    income_for_standard: family.income_for_standard
   };
 }
 
 // =========================
-// ניקוי
+// COMMON BUILDER
 // =========================
-function cleanMembers(rows: any[]) {
-  return rows.map(m => ({
-    first_name: m.first_name?.replace(/\s+/g, ' ').trim(),
-    last_name: m.last_name?.replace(/\s+/g, ' ').trim(),
-    age: Number(m.age)
-  }));
-}
+async function buildResponse(budget_code: string) {
+  const [familyRes, rulesRes] = await Promise.all([
+    pool.query('SELECT * FROM families WHERE budget_code = $1', [budget_code]),
+    pool.query('SELECT key, value FROM rules')
+  ]);
 
-// =========================
-// MEMBERS + SALARY
-// =========================
-async function getMembersWithSalary(budget_code: string) {
-  const result = await pool.query(`
-    SELECT 
-      m.first_name,
-      m.last_name,
-      m.age,
-      SUM(s.amount) as net_amount,
-      SUM(s.study_fund) as study_fund,
-      SUM(s.pension_extra) as pension_extra
-    FROM members m
-    LEFT JOIN salary_income s
-      ON m.budget_code = s.budget_code
-      AND m.first_name = s.first_name
-      AND m.last_name = s.last_name
-    WHERE m.budget_code = $1
-    GROUP BY m.first_name, m.last_name, m.age
-    ORDER BY m.age DESC
-  `, [budget_code]);
+  if (!familyRes.rows.length) return null;
 
-  const cleaned = cleanMembers(result.rows);
+  const family = normalizeFamily(familyRes.rows[0]);
+  const members = await getMembers(budget_code);
 
-  return cleaned.map((m: any, i: number) => ({
-    ...m,
-    salary: {
-      net: Number(result.rows[i].net_amount || 0),
-      study_fund: Number(result.rows[i].study_fund || 0),
-      pension_extra: Number(result.rows[i].pension_extra || 0),
-    }
-  }));
+  const family_size = members.length;
+
+  return {
+    family: {
+      ...family,
+      family_size
+    },
+    inputs: mapToInputs(family, members),
+    members,
+    rules: Object.fromEntries(
+      rulesRes.rows.map(r => [r.key, Number(r.value)])
+    )
+  };
 }
 
 // =========================
 // GET FAMILY
 // =========================
-export const getFamily = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getFamily = async (req: AuthRequest, res: Response) => {
   const budget_code = extractBudgetCode(req.params.budget_code);
 
   if (req.user?.role !== 'admin' && req.user?.budget_code !== budget_code) {
-    res.status(403).json({ error: 'אין הרשאה' });
-    return;
+    return res.status(403).json({ error: 'אין הרשאה' });
   }
 
   try {
-    const [familyRes, rules] = await Promise.all([
-      pool.query('SELECT * FROM families WHERE budget_code = $1', [budget_code]),
-      getRules()
-    ]);
+    const data = await buildResponse(budget_code);
 
-    if (familyRes.rows.length === 0) {
-      res.status(404).json({ error: 'משפחה לא נמצאה' });
-      return;
+    if (!data) {
+      return res.status(404).json({ error: 'משפחה לא נמצאה' });
     }
 
-    const family = familyRes.rows[0];
-    const members = await getMembersWithSalary(budget_code);
-
-    res.json({
-      family: family, // 🔥 מחזיר הכל כמו DB
-      inputs: mapToInputs(family, members),
-      members,
-      rules
-    });
+    res.json(data);
 
   } catch (err) {
     console.error(err);
@@ -164,40 +138,29 @@ export const getFamily = async (req: AuthRequest, res: Response): Promise<void> 
 };
 
 // =========================
-// GET SIMULATION (NO CALC)
+// GET SIMULATION
 // =========================
-export const getSimulation = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getSimulation = async (req: AuthRequest, res: Response) => {
   const budget_code = extractBudgetCode(req.params.budget_code);
 
   if (req.user?.role !== 'admin' && req.user?.budget_code !== budget_code) {
-    res.status(403).json({ error: 'אין הרשאה' });
-    return;
+    return res.status(403).json({ error: 'אין הרשאה' });
   }
 
   try {
-    const [familyRes, rules] = await Promise.all([
-      pool.query('SELECT * FROM families WHERE budget_code = $1', [budget_code]),
-      getRules()
-    ]);
+    const data = await buildResponse(budget_code);
 
-    if (familyRes.rows.length === 0) {
-      res.status(404).json({ error: 'משפחה לא נמצאה' });
-      return;
+    if (!data) {
+      return res.status(404).json({ error: 'משפחה לא נמצאה' });
     }
 
-    const family = familyRes.rows[0];
-    const members = await getMembersWithSalary(budget_code);
-
     res.json({
-      family: family,
-      inputs: mapToInputs(family, members),
-      members,
-      simulation: family, // 🔥 כל השדות מהאקסל
-      rules
+      ...data,
+      simulation: data.family
     });
 
-  } catch (err: any) {
+  } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message || 'שגיאת שרת' });
+    res.status(500).json({ error: 'שגיאת שרת' });
   }
 };

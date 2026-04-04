@@ -4,213 +4,209 @@ from openpyxl import load_workbook
 
 EXCEL_PATH = "masuot-data.xlsx"
 
-
-def get_connection():
+def connect():
     return psycopg2.connect(
         host="aws-1-ap-northeast-1.pooler.supabase.com",
         port=5432,
         database="postgres",
         user="postgres.jhkxyiiwtxtgqxovljkl",
-        password="__Por@t2019!"
-    )
+        password="__Por@t2019!")
 
-import psycopg2
-from psycopg2.extras import execute_values
-from openpyxl import load_workbook
-
-EXCEL_PATH = "masuot-data.xlsx"
-
-
-def get_connection():
-    return psycopg2.connect(
-        host="aws-1-ap-northeast-1.pooler.supabase.com",
-        port=5432,
-        database="postgres",
-        user="postgres.jhkxyiiwtxtgqxovljkl",
-        password="__Por@t2019!"
-    )
-
-
-# =========================
-# HELPERS
-# =========================
-def safe_int(value):
+def to_num(v):
     try:
-        return int(float(value))
+        return float(v)
     except:
         return 0
 
+def is_valid_code(v):
+    return v and str(v).strip().isdigit()
 
-def safe_float(value):
-    try:
-        return float(value)
-    except:
-        return 0
+def add_column_if_not_exists(cur, table, column):
+    cur.execute(f"""
+        DO $$
+        BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns 
+                WHERE table_name='{table}' AND column_name='{column}'
+            ) THEN
+                ALTER TABLE {table} ADD COLUMN {column} NUMERIC;
+            END IF;
+        END$$;
+    """)
 
-
-def clean(value):
-    if not value:
-        return ""
-    return str(value).replace("\n", " ").strip()
-
-
-# =========================
-# CREATE / ALTER TABLES
-# =========================
-def create_tables(conn):
-    with conn.cursor() as cur:
-
-        cur.execute("""
-        CREATE TABLE IF NOT EXISTS families (
-            budget_code TEXT PRIMARY KEY
-        );
-        """)
-
-        cur.execute("ALTER TABLE families ADD COLUMN IF NOT EXISTS family_name TEXT;")
-        cur.execute("ALTER TABLE families ADD COLUMN IF NOT EXISTS family_size INTEGER;")
-        cur.execute("ALTER TABLE families ADD COLUMN IF NOT EXISTS family_standard NUMERIC;")
-
-        # income
-        cur.execute("ALTER TABLE families ADD COLUMN IF NOT EXISTS pension NUMERIC;")
-        cur.execute("ALTER TABLE families ADD COLUMN IF NOT EXISTS survivors NUMERIC;")
-        cur.execute("ALTER TABLE families ADD COLUMN IF NOT EXISTS old_age_allowance NUMERIC;")
-        cur.execute("ALTER TABLE families ADD COLUMN IF NOT EXISTS child_allowance NUMERIC;")
-
-        cur.execute("ALTER TABLE families ADD COLUMN IF NOT EXISTS flow_income NUMERIC;")
-        cur.execute("ALTER TABLE families ADD COLUMN IF NOT EXISTS health_cost NUMERIC;")
-
-        # 🔥 שדות מהאקסל
-        cur.execute("ALTER TABLE families ADD COLUMN IF NOT EXISTS budget_distribution NUMERIC;")  # P
-        cur.execute("ALTER TABLE families ADD COLUMN IF NOT EXISTS special_help NUMERIC;")        # Q
-        cur.execute("ALTER TABLE families ADD COLUMN IF NOT EXISTS periodic_grant NUMERIC;")      # R
-        cur.execute("ALTER TABLE families ADD COLUMN IF NOT EXISTS personal_bonus NUMERIC;")      # S
-        cur.execute("ALTER TABLE families ADD COLUMN IF NOT EXISTS women_work_benefit NUMERIC;")  # T
-        cur.execute("ALTER TABLE families ADD COLUMN IF NOT EXISTS travel NUMERIC;")              # U
-
-        # members
-        cur.execute("""
-        CREATE TABLE IF NOT EXISTS members (
-            id SERIAL PRIMARY KEY,
-            budget_code TEXT,
-            first_name TEXT,
-            last_name TEXT,
-            age INTEGER
-        );
-        """)
-
-        # salary
-        cur.execute("""
-        CREATE TABLE IF NOT EXISTS salary_income (
-            id SERIAL PRIMARY KEY,
-            budget_code TEXT,
-            first_name TEXT,
-            last_name TEXT,
-            amount NUMERIC
-        );
-        """)
-
-        cur.execute("ALTER TABLE salary_income ADD COLUMN IF NOT EXISTS study_fund NUMERIC;")
-        cur.execute("ALTER TABLE salary_income ADD COLUMN IF NOT EXISTS pension_extra NUMERIC;")
-
-        # rules
-        cur.execute("""
-        CREATE TABLE IF NOT EXISTS rules (
-            key TEXT PRIMARY KEY,
-            value NUMERIC
-        );
-        """)
-
-    conn.commit()
-
-
-# =========================
-# IMPORT FAMILIES
-# =========================
-def import_families(conn, wb):
-    sheet = wb["ריכוז נתונים"]
-
-    rows = []
-
-    for row in sheet.iter_rows(min_row=2, values_only=True):
-
-        budget_code = row[0]
-
-        if not budget_code or not str(budget_code).isdigit():
-            continue
-
-        rows.append((
-            str(budget_code),
-            clean(row[1]),
-            safe_int(row[2]),
-            safe_float(row[14]),
-
-            # income
-            safe_float(row[24]),
-            safe_float(row[25]),
-            safe_float(row[26]),
-            safe_float(row[27]),
-
-            safe_float(row[31]),
-            safe_float(row[41]),
-
-            # 🔥 P-Q-R-S-T-U
-            safe_float(row[15]),  # P
-            safe_float(row[16]),  # Q
-            safe_float(row[17]),  # R
-            safe_float(row[18]),  # S
-            safe_float(row[19]),  # T
-            safe_float(row[20])   # U
-        ))
-
-    with conn.cursor() as cur:
-        execute_values(
-            cur,
-            """
-            INSERT INTO families (
-                budget_code, family_name, family_size, family_standard,
-                pension, survivors, old_age_allowance, child_allowance,
-                flow_income, health_cost,
-                budget_distribution, special_help, periodic_grant,
-                personal_bonus, women_work_benefit, travel
-            )
-            VALUES %s
-            ON CONFLICT (budget_code) DO UPDATE SET
-                family_name = EXCLUDED.family_name,
-                family_size = EXCLUDED.family_size,
-                family_standard = EXCLUDED.family_standard,
-                pension = EXCLUDED.pension,
-                survivors = EXCLUDED.survivors,
-                old_age_allowance = EXCLUDED.old_age_allowance,
-                child_allowance = EXCLUDED.child_allowance,
-                flow_income = EXCLUDED.flow_income,
-                health_cost = EXCLUDED.health_cost,
-                budget_distribution = EXCLUDED.budget_distribution,
-                special_help = EXCLUDED.special_help,
-                periodic_grant = EXCLUDED.periodic_grant,
-                personal_bonus = EXCLUDED.personal_bonus,
-                women_work_benefit = EXCLUDED.women_work_benefit,
-                travel = EXCLUDED.travel
-            """,
-            rows
-        )
-
-    conn.commit()
-    print(f"✅ inserted/updated {len(rows)} families")
-
-
-# =========================
-# MAIN
-# =========================
 def main():
-    conn = get_connection()
+    conn = connect()
+    cur = conn.cursor()
+
     wb = load_workbook(EXCEL_PATH, data_only=True)
 
-    create_tables(conn)
-    import_families(conn, wb)
+    summary = wb["ריכוז נתונים"]
+    members_sheet = wb["חברים"]
+    salary_sheet = wb["הכנסות שכר "]
+    discount_sheet = wb["הנחות "]
 
+    print("Ensuring schema...")
+
+    add_column_if_not_exists(cur, "families", "community_tax")
+    add_column_if_not_exists(cur, "families", "municipal_tax")
+    add_column_if_not_exists(cur, "families", "arnona")
+    add_column_if_not_exists(cur, "families", "income_for_standard")  # 🔥 חשוב
+
+    print("Cleaning tables...")
+    cur.execute("TRUNCATE TABLE members RESTART IDENTITY CASCADE")
+    cur.execute("TRUNCATE TABLE families CASCADE")
+    cur.execute("TRUNCATE TABLE rules CASCADE")
+
+    # =========================
+    # FAMILIES
+    # =========================
+    families_data = []
+
+    for row in summary.iter_rows(min_row=2):
+        code = row[0].value
+        name = row[1].value
+
+        if not is_valid_code(code):
+            continue
+        if name and "סיכום" in str(name):
+            continue
+
+        code = str(code).strip()
+
+        families_data.append((
+            code,
+            name,
+            to_num(row[14].value),   # family_standard
+            to_num(row[29].value),   # 🔥 AD = income_for_standard (תיקון קריטי)
+            to_num(row[15].value),
+            to_num(row[18].value),
+            to_num(row[19].value),
+            to_num(row[20].value),
+            to_num(row[17].value),
+            to_num(row[16].value),
+            to_num(row[21].value),
+            to_num(row[24].value),
+            to_num(row[25].value),
+            to_num(row[26].value),
+            to_num(row[27].value),
+            to_num(row[45].value),
+            to_num(row[46].value),
+            to_num(row[47].value)
+        ))
+
+        # 🔍 לוג בדיקה
+        print(f"DEBUG FAMILY {code} -> income_for_standard:", to_num(row[29].value))
+
+    execute_values(cur, """
+        INSERT INTO families (
+            budget_code,
+            family_name,
+            family_standard,
+            income_for_standard,
+            budget_distribution,
+            personal_bonus,
+            women_work_benefit,
+            travel,
+            periodic_grant,
+            special_help,
+            current_state,
+            pension,
+            survivors,
+            old_age_allowance,
+            child_allowance,
+            community_tax,
+            municipal_tax,
+            arnona
+        ) VALUES %s
+    """, families_data)
+
+    print("Families:", len(families_data))
+
+    # =========================
+    # SALARIES
+    # =========================
+    salaries = {}
+
+    for row in salary_sheet.iter_rows(min_row=2):
+        b = row[0].value
+        m = row[2].value
+
+        if not is_valid_code(b):
+            continue
+
+        b = str(b).strip()
+        m = str(m).strip() if m else ""
+
+        salaries[(b, m)] = to_num(row[13].value)
+
+    # =========================
+    # MEMBERS
+    # =========================
+    members_data = []
+
+    for row in members_sheet.iter_rows(min_row=2):
+        member_code = row[0].value
+        budget_code = row[7].value
+
+        if not is_valid_code(budget_code):
+            continue
+
+        budget_code = str(budget_code).strip()
+        member_code = str(member_code).strip()
+
+        net = salaries.get((budget_code, member_code), 0)
+
+        members_data.append((
+            budget_code,
+            member_code,
+            (row[3].value or "").replace("  ", " ").strip(),
+            (row[2].value or "").replace("  ", " ").strip(),
+            to_num(row[6].value),
+            net
+        ))
+
+    execute_values(cur, """
+        INSERT INTO members (
+            budget_code,
+            member_code,
+            first_name,
+            last_name,
+            age,
+            net_salary
+        ) VALUES %s
+    """, members_data)
+
+    print("Members:", len(members_data))
+
+    # =========================
+    # RULES
+    # =========================
+    rules = {
+        "nursery":        to_num(summary.cell(1, 8).value),
+        "kindergarten":   to_num(summary.cell(1, 9).value),
+        "primary":        to_num(summary.cell(1, 10).value),
+        "middle":         to_num(summary.cell(1, 11).value),
+        "highschool":     to_num(summary.cell(1, 12).value),
+
+        "health_total":   to_num(summary.cell(1, 38).value),
+        "health_0_50":    to_num(summary.cell(1, 39).value),
+        "health_50_70":   to_num(summary.cell(1, 40).value),
+        "health_70_plus": to_num(summary.cell(1, 41).value),
+
+        "F21": to_num(discount_sheet.cell(21, 6).value)
+    }
+
+    execute_values(cur,
+        "INSERT INTO rules (key, value) VALUES %s",
+        [(k, to_num(v)) for k, v in rules.items()]
+    )
+
+    print("Rules:", len(rules))
+
+    conn.commit()
     conn.close()
-    print("🎉 DONE")
 
+    print("✅ DONE FULL + FIXED (income_for_standard from AD)")
 
 if __name__ == "__main__":
     main()
