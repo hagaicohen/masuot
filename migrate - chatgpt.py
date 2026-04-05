@@ -13,7 +13,6 @@ def connect():
         password="__Por@t2019!")
 
 
-
 def to_num(v):
     try:
         return float(v)
@@ -74,7 +73,7 @@ def main():
     cur.execute("TRUNCATE TABLE rules CASCADE")
 
     # =========================
-    # ✅ SAVINGS (FIXED ROW START)
+    # SAVINGS
     # =========================
     hishtalmut_map = {}
     pension_map = {}
@@ -86,8 +85,8 @@ def main():
 
         b = str(b).strip()
 
-        hishtalmut = to_num(row[14].value)  # O
-        pension = to_num(row[15].value)     # P
+        hishtalmut = to_num(row[14].value)
+        pension = to_num(row[15].value)
 
         hishtalmut_map[b] = hishtalmut_map.get(b, 0) + hishtalmut
         pension_map[b] = pension_map.get(b, 0) + pension
@@ -184,10 +183,93 @@ def main():
 
     print("Families:", len(families_data))
 
+    # =========================
+    # 🔥 RULES (FINAL CORRECT)
+    # =========================
+    print("Rebuilding rules...")
+
+    cur.execute("DROP TABLE IF EXISTS rules")
+
+    cur.execute("""
+    CREATE TABLE rules (
+        key TEXT PRIMARY KEY,
+
+        nursery NUMERIC,
+        kindergarten NUMERIC,
+        "primary" NUMERIC,
+        middle NUMERIC,
+        highschool NUMERIC,
+
+        health_total NUMERIC,
+        health_0_50 NUMERIC,
+        health_50_70 NUMERIC,
+        health_70_plus NUMERIC,
+
+        K5 NUMERIC,
+        L5 NUMERIC,
+        K6 NUMERIC,
+        J6 NUMERIC,
+        L6 NUMERIC,
+        M5 NUMERIC,
+        K7 NUMERIC,
+        J7 NUMERIC,
+        L7 NUMERIC,
+        M6 NUMERIC,
+
+        F16 NUMERIC,
+        F21 NUMERIC
+    )
+    """)
+
+    # 🔥 לוקחים שורה ראשונה אמיתית מה-summary
+    row = next(summary.iter_rows(min_row=1))
+
+    cur.execute("""
+    INSERT INTO rules VALUES (%s, %s, %s, %s, %s, %s,
+                             %s, %s, %s, %s,
+                             %s, %s, %s, %s, %s, %s,
+                             %s, %s, %s, %s,
+                             %s, %s)
+    """, (
+        "default",
+
+        # חינוך
+        to_num(row[7].value),
+        to_num(row[8].value),
+        to_num(row[9].value),
+        to_num(row[10].value),
+        to_num(row[11].value),
+
+        # בריאות
+        to_num(row[37].value),
+        to_num(row[38].value),
+        to_num(row[39].value),
+        to_num(row[40].value),
+
+        # מדרגות
+        to_num(discount_sheet.cell(row=5, column=11).value),
+        to_num(discount_sheet.cell(row=5, column=12).value),
+        to_num(discount_sheet.cell(row=6, column=11).value),
+        to_num(discount_sheet.cell(row=6, column=10).value),
+        to_num(discount_sheet.cell(row=6, column=12).value),
+        to_num(discount_sheet.cell(row=5, column=13).value),
+
+        to_num(discount_sheet.cell(row=7, column=11).value),
+        to_num(discount_sheet.cell(row=7, column=10).value),
+        to_num(discount_sheet.cell(row=7, column=12).value),
+        to_num(discount_sheet.cell(row=6, column=13).value),
+
+        # חשובים
+        to_num(discount_sheet.cell(row=16, column=6).value),
+        to_num(discount_sheet.cell(row=21, column=6).value)
+    ))
+
+    print("Rules rebuilt")
+
     conn.commit()
     conn.close()
 
-    print("✅ DONE FULL + SAVINGS FIXED")
+    print("✅ DONE")
 
 if __name__ == "__main__":
     main()

@@ -17,7 +17,7 @@ async function getMembers(budget_code: string) {
       age,
       net_salary
     FROM members
-    WHERE budget_code = $1
+    WHERE budget_code::text = $1
     ORDER BY first_name, last_name
   `, [budget_code]);
 
@@ -68,7 +68,6 @@ function normalizeFamily(raw: any) {
     middle: Number(raw.middle || 0),
     high: Number(raw.high || 0),
 
-    // ✅ SAVINGS FIX (תמיד מספר)
     hishtalmut_fund: Number(raw.hishtalmut_fund ?? 0),
     pension_contribution: Number(raw.pension_contribution ?? 0)
   };
@@ -106,32 +105,39 @@ function mapToInputs(family: any, members: any[]) {
 }
 
 // =========================
-// NORMALIZE RULES
+// 🔥 FIX אמיתי ל-RULES
 // =========================
-function normalizeRules(rows: any[]) {
-  const rules = Object.fromEntries(
-    rows.map(r => [r.key, Number(r.value)])
-  );
+function normalizeRules(rows: any) {
+  const r = rows?.[0] ?? {};
 
   return {
-    ...rules,
+    nursery: Number(r.nursery ?? 0),
+    kindergarten: Number(r.kindergarten ?? 0),
+    primary: Number(r.primary ?? 0),
+    middle: Number(r.middle ?? 0),
+    highschool: Number(r.highschool ?? 0),
 
-    education_participation_rate: Number(
-      rules.education_participation_rate ?? 0
-    ),
+    health_total: Number(r.health_total ?? 0),
+    health_0_50: Number(r.health_0_50 ?? 0),
+    health_50_70: Number(r.health_50_70 ?? 0),
+    health_70_plus: Number(r.health_70_plus ?? 0),
 
-    K5: Number(rules.K5 ?? 0),
-    L5: Number(rules.L5 ?? 0),
+    // 🔥 LOWERCASE (זה כל הסיפור)
+    K5: Number(r.k5 ?? 0),
+    L5: Number(r.l5 ?? 0),
 
-    K6: Number(rules.K6 ?? 0),
-    J6: Number(rules.J6 ?? 0),
-    L6: Number(rules.L6 ?? 0),
-    M5: Number(rules.M5 ?? 0),
+    K6: Number(r.k6 ?? 0),
+    J6: Number(r.j6 ?? 0),
+    L6: Number(r.l6 ?? 0),
+    M5: Number(r.m5 ?? 0),
 
-    K7: Number(rules.K7 ?? 0),
-    J7: Number(rules.J7 ?? 0),
-    L7: Number(rules.L7 ?? 0),
-    M6: Number(rules.M6 ?? 0)
+    K7: Number(r.k7 ?? 0),
+    J7: Number(r.j7 ?? 0),
+    L7: Number(r.l7 ?? 0),
+    M6: Number(r.m6 ?? 0),
+
+    F16: Number(r.f16 ?? 0),
+    F21: Number(r.f21 ?? 0)
   };
 }
 
@@ -141,7 +147,7 @@ function normalizeRules(rows: any[]) {
 async function buildResponse(budget_code: string) {
   const [familyRes, rulesRes] = await Promise.all([
     pool.query('SELECT * FROM families WHERE budget_code = $1', [budget_code]),
-    pool.query('SELECT key, value FROM rules')
+    pool.query('SELECT * FROM rules LIMIT 1')
   ]);
 
   if (!familyRes.rows.length) return null;
@@ -149,12 +155,10 @@ async function buildResponse(budget_code: string) {
   const family = normalizeFamily(familyRes.rows[0]);
   const members = await getMembers(budget_code);
 
-  const family_size = members.length;
-
   return {
     family: {
       ...family,
-      family_size
+      family_size: members.length
     },
     inputs: mapToInputs(family, members),
     members,
