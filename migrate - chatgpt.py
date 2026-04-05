@@ -50,7 +50,13 @@ def main():
     add_column_if_not_exists(cur, "families", "community_tax")
     add_column_if_not_exists(cur, "families", "municipal_tax")
     add_column_if_not_exists(cur, "families", "arnona")
-    add_column_if_not_exists(cur, "families", "income_for_standard")  # 🔥 חשוב
+    add_column_if_not_exists(cur, "families", "income_for_standard")
+
+    # 🔥 חדש – בריאות
+    add_column_if_not_exists(cur, "families", "health_total")
+    add_column_if_not_exists(cur, "families", "health_0_50")
+    add_column_if_not_exists(cur, "families", "health_50_70")
+    add_column_if_not_exists(cur, "families", "health_70_plus")
 
     print("Cleaning tables...")
     cur.execute("TRUNCATE TABLE members RESTART IDENTITY CASCADE")
@@ -77,7 +83,8 @@ def main():
             code,
             name,
             to_num(row[14].value),   # family_standard
-            to_num(row[29].value),   # 🔥 AD = income_for_standard (תיקון קריטי)
+            to_num(row[29].value),   # income_for_standard
+
             to_num(row[15].value),
             to_num(row[18].value),
             to_num(row[19].value),
@@ -89,12 +96,18 @@ def main():
             to_num(row[25].value),
             to_num(row[26].value),
             to_num(row[27].value),
+
             to_num(row[45].value),
             to_num(row[46].value),
-            to_num(row[47].value)
+            to_num(row[47].value),
+
+            # 🔥 בריאות AL–AO
+            to_num(row[37].value),  # AL
+            to_num(row[38].value),  # AM
+            to_num(row[39].value),  # AN
+            to_num(row[40].value)   # AO
         ))
 
-        # 🔍 לוג בדיקה
         print(f"DEBUG FAMILY {code} -> income_for_standard:", to_num(row[29].value))
 
     execute_values(cur, """
@@ -116,7 +129,13 @@ def main():
             child_allowance,
             community_tax,
             municipal_tax,
-            arnona
+            arnona,
+
+            health_total,
+            health_0_50,
+            health_50_70,
+            health_70_plus
+
         ) VALUES %s
     """, families_data)
 
@@ -206,7 +225,7 @@ def main():
     conn.commit()
     conn.close()
 
-    print("✅ DONE FULL + FIXED (income_for_standard from AD)")
+    print("✅ DONE FULL + HEALTH ADDED")
 
 if __name__ == "__main__":
     main()

@@ -37,10 +37,7 @@ function normalizeFamily(raw: any) {
     budget_code: raw.budget_code,
     family_name: raw.family_name,
 
-    // 🔥 לא לגעת בדיוק – בלי עיגול
     family_standard: parseFloat(raw.family_standard ?? '0'),
-
-    // 🔥 השדה הקריטי מהאקסל (AD)
     income_for_standard: Number(raw.income_for_standard ?? 0),
 
     budget_distribution: Number(raw.budget_distribution || 0),
@@ -58,7 +55,13 @@ function normalizeFamily(raw: any) {
 
     community_tax: Number(raw.community_tax || 0),
     municipal_tax: Number(raw.municipal_tax || 0),
-    arnona: Number(raw.arnona || 0)
+    arnona: Number(raw.arnona || 0),
+
+    // 🔥 חדש – בריאות (AL–AO)
+    health_total: Number(raw.health_total || 0),
+    health_0_50: Number(raw.health_0_50 || 0),
+    health_50_70: Number(raw.health_50_70 || 0),
+    health_70_plus: Number(raw.health_70_plus || 0)
   };
 }
 
@@ -78,8 +81,13 @@ function mapToInputs(family: any, members: any[]) {
     old_age_allowance: family.old_age_allowance,
     child_allowance: family.child_allowance,
 
-    // 🔥 חשוב להעביר גם ל-FE אם צריך
-    income_for_standard: family.income_for_standard
+    income_for_standard: family.income_for_standard,
+
+    // 🔥 גם ל-FE
+    health_total: family.health_total,
+    health_0_50: family.health_0_50,
+    health_50_70: family.health_50_70,
+    health_70_plus: family.health_70_plus
   };
 }
 
