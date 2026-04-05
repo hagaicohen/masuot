@@ -58,7 +58,7 @@ def main():
     add_column_if_not_exists(cur, "families", "health_50_70")
     add_column_if_not_exists(cur, "families", "health_70_plus")
 
-    # 🔥 חדש – חינוך
+    # 🔥 חינוך
     add_column_if_not_exists(cur, "families", "toddlers")
     add_column_if_not_exists(cur, "families", "kindergarten")
     add_column_if_not_exists(cur, "families", "elementary")
@@ -108,18 +108,18 @@ def main():
             to_num(row[46].value),
             to_num(row[47].value),
 
-            # 🔥 בריאות AL–AO
+            # 🔥 בריאות
             to_num(row[37].value),
             to_num(row[38].value),
             to_num(row[39].value),
             to_num(row[40].value),
 
-            # 🔥 חינוך H–L
-            to_num(row[7].value),   # toddlers
-            to_num(row[8].value),   # kindergarten
-            to_num(row[9].value),   # elementary
-            to_num(row[10].value),  # middle
-            to_num(row[11].value)   # high
+            # 🔥 חינוך
+            to_num(row[7].value),
+            to_num(row[8].value),
+            to_num(row[9].value),
+            to_num(row[10].value),
+            to_num(row[11].value)
         ))
 
     execute_values(cur, """
@@ -215,7 +215,7 @@ def main():
     print("Members:", len(members_data))
 
     # =========================
-    # RULES
+    # RULES (🔥 כולל F16)
     # =========================
     rules = {
         "nursery":        to_num(summary.cell(1, 8).value),
@@ -229,6 +229,10 @@ def main():
         "health_50_70":   to_num(summary.cell(1, 40).value),
         "health_70_plus": to_num(summary.cell(1, 41).value),
 
+        # 🔥 חדש – חינוך
+        "education_participation_rate": to_num(discount_sheet.cell(16, 6).value),
+
+        # 🔥 קיים
         "F21": to_num(discount_sheet.cell(21, 6).value)
     }
 
@@ -242,7 +246,7 @@ def main():
     conn.commit()
     conn.close()
 
-    print("✅ DONE FULL + HEALTH + EDUCATION ADDED")
+    print("✅ DONE FULL + HEALTH + EDUCATION + F16")
 
 if __name__ == "__main__":
     main()

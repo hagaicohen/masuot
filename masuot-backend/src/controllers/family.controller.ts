@@ -63,7 +63,7 @@ function normalizeFamily(raw: any) {
     health_50_70: Number(raw.health_50_70 || 0),
     health_70_plus: Number(raw.health_70_plus || 0),
 
-    // 🔥 חדש – חינוך (H–L)
+    // 🔥 חינוך
     toddlers: Number(raw.toddlers || 0),
     kindergarten: Number(raw.kindergarten || 0),
     elementary: Number(raw.elementary || 0),
@@ -96,12 +96,30 @@ function mapToInputs(family: any, members: any[]) {
     health_50_70: family.health_50_70,
     health_70_plus: family.health_70_plus,
 
-    // 🔥 חדש – חינוך (ל־FE)
+    // 🔥 חינוך
     toddlers: family.toddlers,
     kindergarten: family.kindergarten,
     elementary: family.elementary,
     middle: family.middle,
     high: family.high
+  };
+}
+
+// =========================
+// 🔥 NEW — NORMALIZE RULES
+// =========================
+function normalizeRules(rows: any[]) {
+  const rules = Object.fromEntries(
+    rows.map(r => [r.key, Number(r.value)])
+  );
+
+  return {
+    ...rules,
+
+    // 🔥 F16 — חובה לסימולטור
+    education_participation_rate: Number(
+      rules.education_participation_rate ?? 0
+    )
   };
 }
 
@@ -128,9 +146,9 @@ async function buildResponse(budget_code: string) {
     },
     inputs: mapToInputs(family, members),
     members,
-    rules: Object.fromEntries(
-      rulesRes.rows.map(r => [r.key, Number(r.value)])
-    )
+
+    // 🔥 כאן התיקון
+    rules: normalizeRules(rulesRes.rows)
   };
 }
 
