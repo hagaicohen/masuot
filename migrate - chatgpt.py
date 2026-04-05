@@ -52,11 +52,18 @@ def main():
     add_column_if_not_exists(cur, "families", "arnona")
     add_column_if_not_exists(cur, "families", "income_for_standard")
 
-    # 🔥 חדש – בריאות
+    # 🔥 בריאות
     add_column_if_not_exists(cur, "families", "health_total")
     add_column_if_not_exists(cur, "families", "health_0_50")
     add_column_if_not_exists(cur, "families", "health_50_70")
     add_column_if_not_exists(cur, "families", "health_70_plus")
+
+    # 🔥 חדש – חינוך
+    add_column_if_not_exists(cur, "families", "toddlers")
+    add_column_if_not_exists(cur, "families", "kindergarten")
+    add_column_if_not_exists(cur, "families", "elementary")
+    add_column_if_not_exists(cur, "families", "middle")
+    add_column_if_not_exists(cur, "families", "high")
 
     print("Cleaning tables...")
     cur.execute("TRUNCATE TABLE members RESTART IDENTITY CASCADE")
@@ -82,8 +89,8 @@ def main():
         families_data.append((
             code,
             name,
-            to_num(row[14].value),   # family_standard
-            to_num(row[29].value),   # income_for_standard
+            to_num(row[14].value),
+            to_num(row[29].value),
 
             to_num(row[15].value),
             to_num(row[18].value),
@@ -102,13 +109,18 @@ def main():
             to_num(row[47].value),
 
             # 🔥 בריאות AL–AO
-            to_num(row[37].value),  # AL
-            to_num(row[38].value),  # AM
-            to_num(row[39].value),  # AN
-            to_num(row[40].value)   # AO
-        ))
+            to_num(row[37].value),
+            to_num(row[38].value),
+            to_num(row[39].value),
+            to_num(row[40].value),
 
-        print(f"DEBUG FAMILY {code} -> income_for_standard:", to_num(row[29].value))
+            # 🔥 חינוך H–L
+            to_num(row[7].value),   # toddlers
+            to_num(row[8].value),   # kindergarten
+            to_num(row[9].value),   # elementary
+            to_num(row[10].value),  # middle
+            to_num(row[11].value)   # high
+        ))
 
     execute_values(cur, """
         INSERT INTO families (
@@ -134,8 +146,13 @@ def main():
             health_total,
             health_0_50,
             health_50_70,
-            health_70_plus
+            health_70_plus,
 
+            toddlers,
+            kindergarten,
+            elementary,
+            middle,
+            high
         ) VALUES %s
     """, families_data)
 
@@ -225,7 +242,7 @@ def main():
     conn.commit()
     conn.close()
 
-    print("✅ DONE FULL + HEALTH ADDED")
+    print("✅ DONE FULL + HEALTH + EDUCATION ADDED")
 
 if __name__ == "__main__":
     main()

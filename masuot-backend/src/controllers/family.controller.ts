@@ -57,11 +57,18 @@ function normalizeFamily(raw: any) {
     municipal_tax: Number(raw.municipal_tax || 0),
     arnona: Number(raw.arnona || 0),
 
-    // 🔥 חדש – בריאות (AL–AO)
+    // 🔥 בריאות
     health_total: Number(raw.health_total || 0),
     health_0_50: Number(raw.health_0_50 || 0),
     health_50_70: Number(raw.health_50_70 || 0),
-    health_70_plus: Number(raw.health_70_plus || 0)
+    health_70_plus: Number(raw.health_70_plus || 0),
+
+    // 🔥 חדש – חינוך (H–L)
+    toddlers: Number(raw.toddlers || 0),
+    kindergarten: Number(raw.kindergarten || 0),
+    elementary: Number(raw.elementary || 0),
+    middle: Number(raw.middle || 0),
+    high: Number(raw.high || 0)
   };
 }
 
@@ -83,11 +90,18 @@ function mapToInputs(family: any, members: any[]) {
 
     income_for_standard: family.income_for_standard,
 
-    // 🔥 גם ל-FE
+    // 🔥 בריאות
     health_total: family.health_total,
     health_0_50: family.health_0_50,
     health_50_70: family.health_50_70,
-    health_70_plus: family.health_70_plus
+    health_70_plus: family.health_70_plus,
+
+    // 🔥 חדש – חינוך (ל־FE)
+    toddlers: family.toddlers,
+    kindergarten: family.kindergarten,
+    elementary: family.elementary,
+    middle: family.middle,
+    high: family.high
   };
 }
 
