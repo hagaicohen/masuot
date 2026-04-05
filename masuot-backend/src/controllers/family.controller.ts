@@ -57,13 +57,11 @@ function normalizeFamily(raw: any) {
     municipal_tax: Number(raw.municipal_tax || 0),
     arnona: Number(raw.arnona || 0),
 
-    // 🔥 בריאות
     health_total: Number(raw.health_total || 0),
     health_0_50: Number(raw.health_0_50 || 0),
     health_50_70: Number(raw.health_50_70 || 0),
     health_70_plus: Number(raw.health_70_plus || 0),
 
-    // 🔥 חינוך
     toddlers: Number(raw.toddlers || 0),
     kindergarten: Number(raw.kindergarten || 0),
     elementary: Number(raw.elementary || 0),
@@ -90,13 +88,11 @@ function mapToInputs(family: any, members: any[]) {
 
     income_for_standard: family.income_for_standard,
 
-    // 🔥 בריאות
     health_total: family.health_total,
     health_0_50: family.health_0_50,
     health_50_70: family.health_50_70,
     health_70_plus: family.health_70_plus,
 
-    // 🔥 חינוך
     toddlers: family.toddlers,
     kindergarten: family.kindergarten,
     elementary: family.elementary,
@@ -106,7 +102,7 @@ function mapToInputs(family: any, members: any[]) {
 }
 
 // =========================
-// 🔥 NEW — NORMALIZE RULES
+// 🔥 NORMALIZE RULES (מעודכן מדרגה 3)
 // =========================
 function normalizeRules(rows: any[]) {
   const rules = Object.fromEntries(
@@ -116,10 +112,25 @@ function normalizeRules(rows: any[]) {
   return {
     ...rules,
 
-    // 🔥 F16 — חובה לסימולטור
     education_participation_rate: Number(
       rules.education_participation_rate ?? 0
-    )
+    ),
+
+    // מדרגה 1
+    K5: Number(rules.K5 ?? 0),
+    L5: Number(rules.L5 ?? 0),
+
+    // מדרגה 2
+    K6: Number(rules.K6 ?? 0),
+    J6: Number(rules.J6 ?? 0),
+    L6: Number(rules.L6 ?? 0),
+    M5: Number(rules.M5 ?? 0),
+
+    // 🔥 מדרגה 3 (חדש)
+    K7: Number(rules.K7 ?? 0),
+    J7: Number(rules.J7 ?? 0),
+    L7: Number(rules.L7 ?? 0),
+    M6: Number(rules.M6 ?? 0)
   };
 }
 
@@ -146,8 +157,6 @@ async function buildResponse(budget_code: string) {
     },
     inputs: mapToInputs(family, members),
     members,
-
-    // 🔥 כאן התיקון
     rules: normalizeRules(rulesRes.rows)
   };
 }

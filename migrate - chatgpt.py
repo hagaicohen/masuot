@@ -12,6 +12,7 @@ def connect():
         user="postgres.jhkxyiiwtxtgqxovljkl",
         password="__Por@t2019!")
 
+
 def to_num(v):
     try:
         return float(v)
@@ -52,13 +53,11 @@ def main():
     add_column_if_not_exists(cur, "families", "arnona")
     add_column_if_not_exists(cur, "families", "income_for_standard")
 
-    # 🔥 בריאות
     add_column_if_not_exists(cur, "families", "health_total")
     add_column_if_not_exists(cur, "families", "health_0_50")
     add_column_if_not_exists(cur, "families", "health_50_70")
     add_column_if_not_exists(cur, "families", "health_70_plus")
 
-    # 🔥 חינוך
     add_column_if_not_exists(cur, "families", "toddlers")
     add_column_if_not_exists(cur, "families", "kindergarten")
     add_column_if_not_exists(cur, "families", "elementary")
@@ -108,13 +107,11 @@ def main():
             to_num(row[46].value),
             to_num(row[47].value),
 
-            # 🔥 בריאות
             to_num(row[37].value),
             to_num(row[38].value),
             to_num(row[39].value),
             to_num(row[40].value),
 
-            # 🔥 חינוך
             to_num(row[7].value),
             to_num(row[8].value),
             to_num(row[9].value),
@@ -159,7 +156,7 @@ def main():
     print("Families:", len(families_data))
 
     # =========================
-    # SALARIES
+    # MEMBERS
     # =========================
     salaries = {}
 
@@ -175,9 +172,6 @@ def main():
 
         salaries[(b, m)] = to_num(row[13].value)
 
-    # =========================
-    # MEMBERS
-    # =========================
     members_data = []
 
     for row in members_sheet.iter_rows(min_row=2):
@@ -195,8 +189,8 @@ def main():
         members_data.append((
             budget_code,
             member_code,
-            (row[3].value or "").replace("  ", " ").strip(),
-            (row[2].value or "").replace("  ", " ").strip(),
+            (row[3].value or "").strip(),
+            (row[2].value or "").strip(),
             to_num(row[6].value),
             net
         ))
@@ -215,25 +209,36 @@ def main():
     print("Members:", len(members_data))
 
     # =========================
-    # RULES (🔥 כולל F16)
+    # RULES
     # =========================
     rules = {
-        "nursery":        to_num(summary.cell(1, 8).value),
-        "kindergarten":   to_num(summary.cell(1, 9).value),
-        "primary":        to_num(summary.cell(1, 10).value),
-        "middle":         to_num(summary.cell(1, 11).value),
-        "highschool":     to_num(summary.cell(1, 12).value),
+        "nursery": to_num(summary.cell(1, 8).value),
+        "kindergarten": to_num(summary.cell(1, 9).value),
+        "primary": to_num(summary.cell(1, 10).value),
+        "middle": to_num(summary.cell(1, 11).value),
+        "highschool": to_num(summary.cell(1, 12).value),
 
-        "health_total":   to_num(summary.cell(1, 38).value),
-        "health_0_50":    to_num(summary.cell(1, 39).value),
-        "health_50_70":   to_num(summary.cell(1, 40).value),
+        "health_total": to_num(summary.cell(1, 38).value),
+        "health_0_50": to_num(summary.cell(1, 39).value),
+        "health_50_70": to_num(summary.cell(1, 40).value),
         "health_70_plus": to_num(summary.cell(1, 41).value),
 
-        # 🔥 חדש – חינוך
         "education_participation_rate": to_num(discount_sheet.cell(16, 6).value),
+        "F21": to_num(discount_sheet.cell(21, 6).value),
 
-        # 🔥 קיים
-        "F21": to_num(discount_sheet.cell(21, 6).value)
+        # מדרגות מס
+        "K5": to_num(discount_sheet.cell(5, 11).value),
+        "L5": to_num(discount_sheet.cell(5, 12).value),
+
+        "K6": to_num(discount_sheet.cell(6, 11).value),
+        "J6": to_num(discount_sheet.cell(6, 10).value),
+        "L6": to_num(discount_sheet.cell(6, 12).value),
+        "M5": to_num(discount_sheet.cell(5, 13).value),
+
+        "K7": to_num(discount_sheet.cell(7, 11).value),
+        "J7": to_num(discount_sheet.cell(7, 10).value),
+        "L7": to_num(discount_sheet.cell(7, 12).value),
+        "M6": to_num(discount_sheet.cell(6, 13).value),
     }
 
     execute_values(cur,
@@ -246,7 +251,7 @@ def main():
     conn.commit()
     conn.close()
 
-    print("✅ DONE FULL + HEALTH + EDUCATION + F16")
+    print("✅ DONE FULL + TAX LEVEL 3")
 
 if __name__ == "__main__":
     main()
