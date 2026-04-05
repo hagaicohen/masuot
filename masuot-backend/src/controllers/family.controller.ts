@@ -66,7 +66,11 @@ function normalizeFamily(raw: any) {
     kindergarten: Number(raw.kindergarten || 0),
     elementary: Number(raw.elementary || 0),
     middle: Number(raw.middle || 0),
-    high: Number(raw.high || 0)
+    high: Number(raw.high || 0),
+
+    // ✅ SAVINGS FIX (תמיד מספר)
+    hishtalmut_fund: Number(raw.hishtalmut_fund ?? 0),
+    pension_contribution: Number(raw.pension_contribution ?? 0)
   };
 }
 
@@ -102,7 +106,7 @@ function mapToInputs(family: any, members: any[]) {
 }
 
 // =========================
-// 🔥 NORMALIZE RULES (מעודכן מדרגה 3)
+// NORMALIZE RULES
 // =========================
 function normalizeRules(rows: any[]) {
   const rules = Object.fromEntries(
@@ -116,17 +120,14 @@ function normalizeRules(rows: any[]) {
       rules.education_participation_rate ?? 0
     ),
 
-    // מדרגה 1
     K5: Number(rules.K5 ?? 0),
     L5: Number(rules.L5 ?? 0),
 
-    // מדרגה 2
     K6: Number(rules.K6 ?? 0),
     J6: Number(rules.J6 ?? 0),
     L6: Number(rules.L6 ?? 0),
     M5: Number(rules.M5 ?? 0),
 
-    // 🔥 מדרגה 3 (חדש)
     K7: Number(rules.K7 ?? 0),
     J7: Number(rules.J7 ?? 0),
     L7: Number(rules.L7 ?? 0),

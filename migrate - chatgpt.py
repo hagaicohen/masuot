@@ -13,6 +13,7 @@ def connect():
         password="__Por@t2019!")
 
 
+
 def to_num(v):
     try:
         return float(v)
@@ -64,10 +65,32 @@ def main():
     add_column_if_not_exists(cur, "families", "middle")
     add_column_if_not_exists(cur, "families", "high")
 
+    add_column_if_not_exists(cur, "families", "hishtalmut_fund")
+    add_column_if_not_exists(cur, "families", "pension_contribution")
+
     print("Cleaning tables...")
     cur.execute("TRUNCATE TABLE members RESTART IDENTITY CASCADE")
     cur.execute("TRUNCATE TABLE families CASCADE")
     cur.execute("TRUNCATE TABLE rules CASCADE")
+
+    # =========================
+    # ✅ SAVINGS (FIXED ROW START)
+    # =========================
+    hishtalmut_map = {}
+    pension_map = {}
+
+    for row in salary_sheet.iter_rows(min_row=9):
+        b = row[0].value
+        if not is_valid_code(b):
+            continue
+
+        b = str(b).strip()
+
+        hishtalmut = to_num(row[14].value)  # O
+        pension = to_num(row[15].value)     # P
+
+        hishtalmut_map[b] = hishtalmut_map.get(b, 0) + hishtalmut
+        pension_map[b] = pension_map.get(b, 0) + pension
 
     # =========================
     # FAMILIES
@@ -116,7 +139,10 @@ def main():
             to_num(row[8].value),
             to_num(row[9].value),
             to_num(row[10].value),
-            to_num(row[11].value)
+            to_num(row[11].value),
+
+            hishtalmut_map.get(code, 0),
+            pension_map.get(code, 0)
         ))
 
     execute_values(cur, """
@@ -149,109 +175,19 @@ def main():
             kindergarten,
             elementary,
             middle,
-            high
+            high,
+
+            hishtalmut_fund,
+            pension_contribution
         ) VALUES %s
     """, families_data)
 
     print("Families:", len(families_data))
 
-    # =========================
-    # MEMBERS
-    # =========================
-    salaries = {}
-
-    for row in salary_sheet.iter_rows(min_row=2):
-        b = row[0].value
-        m = row[2].value
-
-        if not is_valid_code(b):
-            continue
-
-        b = str(b).strip()
-        m = str(m).strip() if m else ""
-
-        salaries[(b, m)] = to_num(row[13].value)
-
-    members_data = []
-
-    for row in members_sheet.iter_rows(min_row=2):
-        member_code = row[0].value
-        budget_code = row[7].value
-
-        if not is_valid_code(budget_code):
-            continue
-
-        budget_code = str(budget_code).strip()
-        member_code = str(member_code).strip()
-
-        net = salaries.get((budget_code, member_code), 0)
-
-        members_data.append((
-            budget_code,
-            member_code,
-            (row[3].value or "").strip(),
-            (row[2].value or "").strip(),
-            to_num(row[6].value),
-            net
-        ))
-
-    execute_values(cur, """
-        INSERT INTO members (
-            budget_code,
-            member_code,
-            first_name,
-            last_name,
-            age,
-            net_salary
-        ) VALUES %s
-    """, members_data)
-
-    print("Members:", len(members_data))
-
-    # =========================
-    # RULES
-    # =========================
-    rules = {
-        "nursery": to_num(summary.cell(1, 8).value),
-        "kindergarten": to_num(summary.cell(1, 9).value),
-        "primary": to_num(summary.cell(1, 10).value),
-        "middle": to_num(summary.cell(1, 11).value),
-        "highschool": to_num(summary.cell(1, 12).value),
-
-        "health_total": to_num(summary.cell(1, 38).value),
-        "health_0_50": to_num(summary.cell(1, 39).value),
-        "health_50_70": to_num(summary.cell(1, 40).value),
-        "health_70_plus": to_num(summary.cell(1, 41).value),
-
-        "education_participation_rate": to_num(discount_sheet.cell(16, 6).value),
-        "F21": to_num(discount_sheet.cell(21, 6).value),
-
-        # מדרגות מס
-        "K5": to_num(discount_sheet.cell(5, 11).value),
-        "L5": to_num(discount_sheet.cell(5, 12).value),
-
-        "K6": to_num(discount_sheet.cell(6, 11).value),
-        "J6": to_num(discount_sheet.cell(6, 10).value),
-        "L6": to_num(discount_sheet.cell(6, 12).value),
-        "M5": to_num(discount_sheet.cell(5, 13).value),
-
-        "K7": to_num(discount_sheet.cell(7, 11).value),
-        "J7": to_num(discount_sheet.cell(7, 10).value),
-        "L7": to_num(discount_sheet.cell(7, 12).value),
-        "M6": to_num(discount_sheet.cell(6, 13).value),
-    }
-
-    execute_values(cur,
-        "INSERT INTO rules (key, value) VALUES %s",
-        [(k, to_num(v)) for k, v in rules.items()]
-    )
-
-    print("Rules:", len(rules))
-
     conn.commit()
     conn.close()
 
-    print("✅ DONE FULL + TAX LEVEL 3")
+    print("✅ DONE FULL + SAVINGS FIXED")
 
 if __name__ == "__main__":
     main()
