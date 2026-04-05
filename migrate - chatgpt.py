@@ -12,28 +12,22 @@ def connect():
         user="postgres.jhkxyiiwtxtgqxovljkl",
         password="__Por@t2019!")
 
-
 def to_num(v):
     try:
         return float(v)
     except:
         return 0
 
-def is_valid_code(v):
-    return v and str(v).strip().isdigit()
+def is_valid(v):
+    return v is not None and str(v).strip() != ""
 
-def add_column_if_not_exists(cur, table, column):
-    cur.execute(f"""
-        DO $$
-        BEGIN
-            IF NOT EXISTS (
-                SELECT 1 FROM information_schema.columns 
-                WHERE table_name='{table}' AND column_name='{column}'
-            ) THEN
-                ALTER TABLE {table} ADD COLUMN {column} NUMERIC;
-            END IF;
-        END$$;
-    """)
+def norm_id(v):
+    if v is None:
+        return None
+    try:
+        return str(int(float(v))).strip()
+    except:
+        return str(v).strip()
 
 def main():
     conn = connect()
@@ -46,53 +40,13 @@ def main():
     salary_sheet = wb["הכנסות שכר "]
     discount_sheet = wb["הנחות "]
 
-    print("Ensuring schema...")
-
-    add_column_if_not_exists(cur, "families", "community_tax")
-    add_column_if_not_exists(cur, "families", "municipal_tax")
-    add_column_if_not_exists(cur, "families", "arnona")
-    add_column_if_not_exists(cur, "families", "income_for_standard")
-
-    add_column_if_not_exists(cur, "families", "health_total")
-    add_column_if_not_exists(cur, "families", "health_0_50")
-    add_column_if_not_exists(cur, "families", "health_50_70")
-    add_column_if_not_exists(cur, "families", "health_70_plus")
-
-    add_column_if_not_exists(cur, "families", "toddlers")
-    add_column_if_not_exists(cur, "families", "kindergarten")
-    add_column_if_not_exists(cur, "families", "elementary")
-    add_column_if_not_exists(cur, "families", "middle")
-    add_column_if_not_exists(cur, "families", "high")
-
-    add_column_if_not_exists(cur, "families", "hishtalmut_fund")
-    add_column_if_not_exists(cur, "families", "pension_contribution")
-
     print("Cleaning tables...")
     cur.execute("TRUNCATE TABLE members RESTART IDENTITY CASCADE")
     cur.execute("TRUNCATE TABLE families CASCADE")
     cur.execute("TRUNCATE TABLE rules CASCADE")
 
     # =========================
-    # SAVINGS
-    # =========================
-    hishtalmut_map = {}
-    pension_map = {}
-
-    for row in salary_sheet.iter_rows(min_row=9):
-        b = row[0].value
-        if not is_valid_code(b):
-            continue
-
-        b = str(b).strip()
-
-        hishtalmut = to_num(row[14].value)
-        pension = to_num(row[15].value)
-
-        hishtalmut_map[b] = hishtalmut_map.get(b, 0) + hishtalmut
-        pension_map[b] = pension_map.get(b, 0) + pension
-
-    # =========================
-    # FAMILIES
+    # FAMILIES (unchanged)
     # =========================
     families_data = []
 
@@ -100,7 +54,7 @@ def main():
         code = row[0].value
         name = row[1].value
 
-        if not is_valid_code(code):
+        if not is_valid(code):
             continue
         if name and "סיכום" in str(name):
             continue
@@ -140,8 +94,8 @@ def main():
             to_num(row[10].value),
             to_num(row[11].value),
 
-            hishtalmut_map.get(code, 0),
-            pension_map.get(code, 0)
+            0,
+            0
         ))
 
     execute_values(cur, """
@@ -184,7 +138,70 @@ def main():
     print("Families:", len(families_data))
 
     # =========================
-    # 🔥 RULES (FINAL CORRECT)
+    # MEMBERS (FINAL FIX)
+    # =========================
+    print("Importing members...")
+
+    salary_map = {}
+
+    for row in salary_sheet.iter_rows(min_row=9):
+        code = row[0].value        # A
+        member_code = norm_id(row[2].value)  # C
+
+        if not is_valid(code) or not is_valid(member_code):
+            continue
+
+        code = str(code).strip()
+
+        key = (code, member_code)
+
+        salary = to_num(row[12].value)  # M
+
+        salary_map[key] = salary_map.get(key, 0) + salary
+
+    members_data = []
+
+    for row in members_sheet.iter_rows(min_row=2):
+        code = row[7].value              # H
+
+        member_code = norm_id(row[0].value)   # A ✅
+        first_name = row[1].value             # B
+        last_name = row[2].value              # C
+        age = to_num(row[6].value)            # D
+
+        if not is_valid(code) or not is_valid(member_code):
+            continue
+
+        code = str(code).strip()
+
+        key = (code, member_code)
+
+        net_salary = salary_map.get(key, 0)
+
+        members_data.append((
+            code,
+            member_code,
+            first_name,
+            last_name,
+            age,
+            net_salary
+        ))
+
+    execute_values(cur, """
+        INSERT INTO members (
+            budget_code,
+            member_code,
+            first_name,
+            last_name,
+            age,
+            net_salary
+        ) VALUES %s
+    """, members_data)
+
+    print("Members:", len(members_data))
+
+    # =========================
+    # RULES (unchanged)
     # =========================
     print("Rebuilding rules...")
 
@@ -193,36 +210,23 @@ def main():
     cur.execute("""
     CREATE TABLE rules (
         key TEXT PRIMARY KEY,
-
         nursery NUMERIC,
         kindergarten NUMERIC,
         "primary" NUMERIC,
         middle NUMERIC,
         highschool NUMERIC,
-
         health_total NUMERIC,
         health_0_50 NUMERIC,
         health_50_70 NUMERIC,
         health_70_plus NUMERIC,
-
-        K5 NUMERIC,
-        L5 NUMERIC,
-        K6 NUMERIC,
-        J6 NUMERIC,
-        L6 NUMERIC,
-        M5 NUMERIC,
-        K7 NUMERIC,
-        J7 NUMERIC,
-        L7 NUMERIC,
-        M6 NUMERIC,
-
-        F16 NUMERIC,
-        F21 NUMERIC
+        K5 NUMERIC, L5 NUMERIC,
+        K6 NUMERIC, J6 NUMERIC, L6 NUMERIC, M5 NUMERIC,
+        K7 NUMERIC, J7 NUMERIC, L7 NUMERIC, M6 NUMERIC,
+        F16 NUMERIC, F21 NUMERIC
     )
     """)
 
-    # 🔥 לוקחים שורה ראשונה אמיתית מה-summary
-    row = next(summary.iter_rows(min_row=1))
+    row = next(summary.iter_rows(min_row=2))
 
     cur.execute("""
     INSERT INTO rules VALUES (%s, %s, %s, %s, %s, %s,
@@ -232,21 +236,17 @@ def main():
                              %s, %s)
     """, (
         "default",
-
-        # חינוך
         to_num(row[7].value),
         to_num(row[8].value),
         to_num(row[9].value),
         to_num(row[10].value),
         to_num(row[11].value),
 
-        # בריאות
         to_num(row[37].value),
         to_num(row[38].value),
         to_num(row[39].value),
         to_num(row[40].value),
 
-        # מדרגות
         to_num(discount_sheet.cell(row=5, column=11).value),
         to_num(discount_sheet.cell(row=5, column=12).value),
         to_num(discount_sheet.cell(row=6, column=11).value),
@@ -259,7 +259,6 @@ def main():
         to_num(discount_sheet.cell(row=7, column=12).value),
         to_num(discount_sheet.cell(row=6, column=13).value),
 
-        # חשובים
         to_num(discount_sheet.cell(row=16, column=6).value),
         to_num(discount_sheet.cell(row=21, column=6).value)
     ))
