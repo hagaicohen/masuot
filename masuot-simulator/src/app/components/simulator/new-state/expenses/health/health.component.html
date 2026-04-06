@@ -1,0 +1,31 @@
+<app-accordion-panel title="בריאות" [badge]="badge" [level]="3" [badgeRed]="true">
+
+  <div class="table-wrapper">
+    <table class="health-table">
+      <thead>
+        <tr>
+          <th>נפשות</th>
+          <th>עד 50</th>
+          <th>50–70</th>
+          <th>70+</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ family()?.inputs?.health_total }}</td>
+          <td>{{ family()?.inputs?.health_0_50 }}</td>
+          <td>{{ family()?.inputs?.health_50_70 }}</td>
+          <td>{{ family()?.inputs?.health_70_plus }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="total-row">
+    <span>סה"כ בריאות</span>
+    <span class="leaf-val red">
+      {{ result()!.healthExpenses | number:'1.0-0' }} ₪
+    </span>
+  </div>
+
+</app-accordion-panel>

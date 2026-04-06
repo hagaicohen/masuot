@@ -1,0 +1,17 @@
+<app-accordion-panel title="תוספת חסכונות" [badge]="badge" [level]="2">
+
+  <div class="leaf">
+    <span class="leaf-label">קרן השתלמות</span>
+    <span class="leaf-val red">
+      {{ result()!.hishtalmutFund | number:'1.0-0' }} ₪
+    </span>
+  </div>
+
+  <div class="leaf">
+    <span class="leaf-label">הפרשות פנסיה</span>
+    <span class="leaf-val red">
+      {{ result()!.pensionContribution | number:'1.0-0' }} ₪
+    </span>
+  </div>
+
+</app-accordion-panel>

@@ -1,0 +1,25 @@
+<app-accordion-panel title="ילדים" [badge]="badge" [level]="2">
+  <div class="inner-padded">
+
+    <table class="members-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>שם</th>
+          <th>גיל</th>
+          <th>מסגרת</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let c of family()?.children; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ c.name }}</td>
+          <td>{{ c.age }}</td>
+          <td>{{ eduLabel(c.educationLevel) }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</app-accordion-panel>

@@ -1,0 +1,22 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo"><img src="/logo.jpg" alt="משואות יצחק" /></div>
+    <h1 class="login-title">משואות יצחק</h1>
+    <p class="login-sub">סימולטור הכנסה פנויה</p>
+    <form (ngSubmit)="onSubmit()">
+      <div class="field">
+        <label>קוד תקציב</label>
+        <input type="text" [(ngModel)]="code" name="code" placeholder="הכנס קוד תקציב" required />
+      </div>
+      <div class="field">
+        <label>סיסמה</label>
+        <input type="password" [(ngModel)]="password" name="password" placeholder="הכנס סיסמה" required />
+      </div>
+      <p class="login-error" *ngIf="error">{{ error }}</p>
+      <button type="submit" [disabled]="loading">
+        <span *ngIf="loading" class="spinner"></span>
+        {{ loading ? 'מתחבר...' : 'כניסה' }}
+      </button>
+    </form>
+  </div>
+</div>

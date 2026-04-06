@@ -1,0 +1,103 @@
+<ng-container *ngIf="result() as r">
+
+<app-accordion-panel title="חינוך" [badge]="badge" [level]="3" [badgeRed]="true">
+
+  <div class="inner-padded">
+
+    <table class="edu-table">
+
+      <thead>
+        <tr>
+          <th>סוג</th>
+          <th>כמות</th>
+          <th>מחיר ליח'</th>
+          <th class="total">סה"כ</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr>
+          <td>פעוטות</td>
+          <td>{{ inputs()?.toddlers }}</td>
+          <td>{{ rules()?.nursery | number:'1.0-0' }} ₪</td>
+          <td class="total red">
+            {{ (inputs()?.toddlers * rules()?.nursery) | number:'1.0-0' }} ₪
+          </td>
+        </tr>
+
+        <tr>
+          <td>גנים</td>
+          <td>{{ inputs()?.kindergarten }}</td>
+          <td>{{ rules()?.kindergarten | number:'1.0-0' }} ₪</td>
+          <td class="total red">
+            {{ (inputs()?.kindergarten * rules()?.kindergarten) | number:'1.0-0' }} ₪
+          </td>
+        </tr>
+
+        <tr>
+          <td>יסודי</td>
+          <td>{{ inputs()?.elementary }}</td>
+          <td>{{ rules()?.primary | number:'1.0-0' }} ₪</td>
+          <td class="total red">
+            {{ (inputs()?.elementary * rules()?.primary) | number:'1.0-0' }} ₪
+          </td>
+        </tr>
+
+        <tr>
+          <td>חטיבה</td>
+          <td>{{ inputs()?.middle }}</td>
+          <td>{{ rules()?.middle | number:'1.0-0' }} ₪</td>
+          <td class="total red">
+            {{ (inputs()?.middle * rules()?.middle) | number:'1.0-0' }} ₪
+          </td>
+        </tr>
+
+        <tr>
+          <td>תיכון</td>
+          <td>{{ inputs()?.high }}</td>
+          <td>{{ rules()?.highschool | number:'1.0-0' }} ₪</td>
+          <td class="total red">
+            {{ (inputs()?.high * rules()?.highschool) | number:'1.0-0' }} ₪
+          </td>
+        </tr>
+
+        <tr class="participation" *ngIf="r.educationParticipation > 0">
+          <td>השתתפות בעלויות חינוך</td>
+          <td></td>
+          <td></td>
+          <td class="total green">
+            -{{ r.educationParticipation | number:'1.0-0' }} ₪
+          </td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  <div class="total-row">
+    <span>סה"כ הוצאות חינוך</span>
+    <span class="leaf-val red">
+      {{ r.educationExpenses | number:'1.0-0' }} ₪
+    </span>
+  </div>
+
+  <div class="total-row" *ngIf="r.educationParticipation > 0">
+    <span>השתתפות</span>
+    <span class="leaf-val green">
+      -{{ r.educationParticipation | number:'1.0-0' }} ₪
+    </span>
+  </div>
+
+  <div class="total-row bold">
+    <span>הוצאות חינוך בפועל</span>
+    <span class="leaf-val">
+      {{ (r.educationExpenses - r.educationParticipation) | number:'1.0-0' }} ₪
+    </span>
+  </div>
+
+</app-accordion-panel>
+
+</ng-container>

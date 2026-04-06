@@ -1,0 +1,16 @@
+<ng-container *ngIf="result() as r">
+
+  <app-accordion-panel title="הוצאות" [badge]="badge" [level]="2" [badgeRed]="true">
+
+    <app-education></app-education>
+    <app-health></app-health>
+    <app-taxes></app-taxes>
+
+    <div class="total-row">
+      <span>סה"כ הוצאות</span>
+      <span class="leaf-val red">{{ r.totalExpenses | number:'1.0-0' }} ₪</span>
+    </div>
+
+  </app-accordion-panel>
+
+</ng-container>

@@ -1,0 +1,27 @@
+<app-accordion-panel title="משכורות" [badge]="badge" [level]="2">
+  <div class="inner-padded">
+    <app-accordion-panel
+      *ngFor="let m of getSortedMembers(); let i = index"
+      [title]="getMemberTitle(i, m)"
+      [badge]="memberBadge(m)"
+      [level]="3">
+
+      <div class="leaf">
+        <span class="leaf-label">שכר נטו נוכחי</span>
+        <span class="leaf-val">{{ m.currentSalary | number:'1.0-0' }} ₪</span>
+      </div>
+
+      <div class="leaf">
+        <span class="leaf-label">שכר נטו מעודכן</span>
+
+        <input
+            class="leaf-input"
+            type="number"
+            [(ngModel)]="m.expectedSalary"
+            (ngModelChange)="onSalaryChange()"
+          />
+      </div>
+
+    </app-accordion-panel>
+  </div>
+</app-accordion-panel>

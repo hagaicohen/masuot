@@ -1,0 +1,16 @@
+<div class="sum-bar" *ngIf="result()">
+  <div class="sum-inner">
+    <div class="sum-item"><div class="sum-lbl">הכנסות</div><div class="sum-val">{{ result()!.totalIncome | number:'1.0-0' }} ₪</div></div>
+    <div class="sum-div"></div>
+    <div class="sum-item"><div class="sum-lbl">הוצאות</div><div class="sum-val">{{ result()!.totalExpenses | number:'1.0-0' }} ₪</div></div>
+    <div class="sum-div"></div>
+    <div class="sum-item"><div class="sum-lbl">הכנסה פנויה</div><div class="sum-val green">{{ result()!.netDisposableIncome | number:'1.0-0' }} ₪</div></div>
+    <div class="sum-div"></div>
+    <div class="sum-item">
+      <div class="sum-lbl">הפרש</div>
+      <div class="sum-val" [class.red]="result()!.diff > 0" [class.green]="result()!.diff <= 0">
+        {{ result()!.diff > 0 ? '▼' : '▲' }} {{ result()!.diff | number:'1.0-0' }} ₪
+      </div>
+    </div>
+  </div>
+</div>

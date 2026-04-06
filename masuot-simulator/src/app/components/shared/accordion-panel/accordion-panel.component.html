@@ -1,0 +1,18 @@
+<div class="ac" [ngClass]="'l' + level">
+  <div class="ac-head" (click)="toggle()">
+    <div class="ac-head-right">
+      <span class="ac-title">{{ title }}</span>
+      <span *ngIf="badge" class="ac-badge" [class.ac-badge-red]="badgeRed">{{ badge }}</span>
+      <ng-content select="[slot=badge-extra]"></ng-content>
+    </div>
+    <div class="ac-extras">
+      <ng-content select="[slot=actions]"></ng-content>
+      <div class="chev" [class.open]="open"></div>
+    </div>
+  </div>
+  <div class="ac-body" [class.open]="open">
+    <div class="ac-inner">
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>

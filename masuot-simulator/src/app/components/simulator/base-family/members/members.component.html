@@ -1,0 +1,27 @@
+<app-accordion-panel title="חברים" [badge]="badge" [level]="2">
+  <div class="inner-padded">
+
+    <table class="members-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>שם</th>
+          <th>גיל</th>
+          <th>סטטוס</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let m of adultMembers; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ m.name }}</td>
+          <td>{{ m.age }}</td>
+          <td>
+            {{ m.status === 'employed' ? 'עובד/ת' : m.status }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</app-accordion-panel>
