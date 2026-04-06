@@ -1,5 +1,5 @@
 [build]
-  base = "frontend"
+  base = "masuot-simulator"
   command = "npm run build --configuration production"
   publish = "dist/frontend"
 
