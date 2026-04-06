@@ -6,6 +6,11 @@ import familyRoutes from './routes/family.routes';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// 🔥 ADDED
+app.use(cors({
+  origin: 'https://masuot-simulator.netlify.app'
+}));
+
 app.use(cors());
 app.use(express.json());
 
