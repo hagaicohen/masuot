@@ -45,6 +45,25 @@ def main():
     cur.execute("TRUNCATE TABLE families CASCADE")
     cur.execute("TRUNCATE TABLE rules CASCADE")
 
+    # 🔥 ADDED — savings map (O,P from salary sheet)
+    savings_map = {}
+    for row in salary_sheet.iter_rows(min_row=9):
+        code = row[0].value  # A
+
+        if not is_valid(code):
+            continue
+
+        code = str(code).strip()
+
+        hishtalmut = to_num(row[14].value)  # O
+        pension = to_num(row[15].value)     # P
+
+        if code not in savings_map:
+            savings_map[code] = {"hishtalmut": 0, "pension": 0}
+
+        savings_map[code]["hishtalmut"] += hishtalmut
+        savings_map[code]["pension"] += pension
+
     # =========================
     # FAMILIES (unchanged)
     # =========================
@@ -94,8 +113,9 @@ def main():
             to_num(row[10].value),
             to_num(row[11].value),
 
-            0,
-            0
+            # 🔥 ADDED — values from savings_map
+            savings_map.get(code, {}).get("hishtalmut", 0),
+            savings_map.get(code, {}).get("pension", 0)
         ))
 
     execute_values(cur, """
@@ -164,10 +184,10 @@ def main():
     for row in members_sheet.iter_rows(min_row=2):
         code = row[7].value              # H
 
-        member_code = norm_id(row[0].value)   # A ✅
-        first_name = row[1].value             # B
-        last_name = row[2].value              # C
-        age = to_num(row[6].value)            # D
+        member_code = norm_id(row[0].value)   # A
+        first_name = row[1].value
+        last_name = row[2].value
+        age = to_num(row[6].value)
 
         if not is_valid(code) or not is_valid(member_code):
             continue
@@ -261,7 +281,6 @@ def main():
 
         to_num(discount_sheet.cell(row=16, column=6).value),
         to_num(discount_sheet.cell(row=21, column=6).value)
-        
     ))
 
     cur.execute("""
