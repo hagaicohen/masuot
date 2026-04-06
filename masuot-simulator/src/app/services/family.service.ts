@@ -32,7 +32,7 @@ export class FamilyService {
 
       const members: FamilyMember[] = data.members.map((m: any, index: number) => ({
         id: `${index}`,
-        name: `${this.clean(m.first_name)} ${this.clean(m.last_name)}`,
+        name: `${this.clean(m.first_name)}`,
         age: Number(m.age),
         status: 'employed',
         currentSalary: Number(m.net_salary || 0),

@@ -8,7 +8,8 @@ const PORT = process.env.PORT || 3000;
 
 // ✅ CORS (רק פעם אחת!)
 app.use(cors({
-  origin: 'https://masuot-simulator.netlify.app',
+  origin: [ 'http://localhost:4200',
+            'https://masuot-simulator.netlify.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
