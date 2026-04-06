@@ -6,21 +6,25 @@ import familyRoutes from './routes/family.routes';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🔥 ADDED
+// ✅ CORS (רק פעם אחת!)
 app.use(cors({
-  origin: 'https://masuot-simulator.netlify.app'
+  origin: 'https://masuot-simulator.netlify.app',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(cors());
 app.use(express.json());
 
-app.use('/api/auth',   authRoutes);
+// Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/family', familyRoutes);
 
+// Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date() });
 });
 
+// Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
