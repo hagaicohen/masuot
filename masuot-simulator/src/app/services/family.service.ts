@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../src/environments/environment';
+import { environment } from '../../environments/environment';
 import { FamilyData, FamilyMember, Child } from '../models/simulator.models';
 import { firstValueFrom } from 'rxjs';
 
@@ -23,7 +23,9 @@ export class FamilyService {
 
     try {
       const data = await firstValueFrom(
-        this.http.get<any>(`${environment.apiUrl}/family/${budgetCode}/simulation`)
+        this.http.get<any>(
+          `${environment.apiUrl}/api/family/${budgetCode}/simulation` // ✅ FIXED
+        )
       );
 
       console.log('FAMILY DATA:', data);
@@ -162,11 +164,6 @@ export class FamilyService {
     if (age <= 12) return 'elementary';
     if (age <= 14) return 'middle';
     return 'high';
-  }
-
-  private ageToBirthDate(age: number): Date {
-    const year = new Date().getFullYear() - Number(age || 0);
-    return new Date(year, 0, 1);
   }
 
   private clean(value: string | undefined): string {
