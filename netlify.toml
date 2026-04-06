@@ -1,7 +1,7 @@
 [build]
   base = "masuot-simulator"
-  command = "npm run build --configuration production"
-  publish = "dist/frontend"
+  command = "npm run build -- --configuration production"
+  publish = "masuot-simulator/dist/masuot-simulator"
 
 # 🔥 חשוב ל-Angular (routing)
 [[redirects]]
