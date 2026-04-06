@@ -1,7 +1,7 @@
 [build]
   base = "masuot-simulator"
-  command = "npm run build -- --configuration production"
-  publish = "dist/masuot-simulator"
+  command = "npm run build"
+  publish = "dist/masuot-simulator/browser"
 
 [[redirects]]
   from = "/*"
