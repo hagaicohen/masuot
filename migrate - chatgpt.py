@@ -261,7 +261,23 @@ def main():
 
         to_num(discount_sheet.cell(row=16, column=6).value),
         to_num(discount_sheet.cell(row=21, column=6).value)
+        
     ))
+
+    cur.execute("""
+    CREATE INDEX IF NOT EXISTS idx_families_budget_code
+    ON families(budget_code);
+    """)
+
+    cur.execute("""
+    CREATE INDEX IF NOT EXISTS idx_members_budget_code
+    ON members(budget_code);
+    """)
+
+    cur.execute("""
+    CREATE INDEX IF NOT EXISTS idx_members_member_code
+    ON members(member_code);
+    """)
 
     print("Rules rebuilt")
 

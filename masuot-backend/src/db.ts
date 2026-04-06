@@ -9,4 +9,16 @@ const pool = new Pool({
   ssl:      { rejectUnauthorized: false }
 });
 
+// 🔥 INIT פעם אחת לכל האפליקציה
+let __dbInitialized = false;
+
+export async function initDB() {
+  if (!__dbInitialized) {
+    console.time('DB INIT');
+    await pool.query('SELECT 1');
+    console.timeEnd('DB INIT');
+    __dbInitialized = true;
+  }
+}
+
 export default pool;
