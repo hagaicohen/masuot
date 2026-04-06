@@ -1,0 +1,10 @@
+[build]
+  base = "frontend"
+  command = "npm run build --configuration production"
+  publish = "dist/frontend"
+
+# 🔥 חשוב ל-Angular (routing)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
