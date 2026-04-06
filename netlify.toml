@@ -3,7 +3,6 @@
   command = "npm run build -- --configuration production"
   publish = "dist/masuot-simulator"
 
-# 🔥 חשוב ל-Angular (routing)
 [[redirects]]
   from = "/*"
   to = "/index.html"
