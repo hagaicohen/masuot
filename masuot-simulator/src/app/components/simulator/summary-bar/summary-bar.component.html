@@ -1,16 +1,49 @@
-<div class="sum-bar" *ngIf="result()">
+<div class="sum-bar" *ngIf="result() as r">
   <div class="sum-inner">
-    <div class="sum-item"><div class="sum-lbl">הכנסות</div><div class="sum-val">{{ result()!.totalIncome | number:'1.0-0' }} ₪</div></div>
-    <div class="sum-div"></div>
-    <div class="sum-item"><div class="sum-lbl">הוצאות</div><div class="sum-val">{{ result()!.totalExpenses | number:'1.0-0' }} ₪</div></div>
-    <div class="sum-div"></div>
-    <div class="sum-item"><div class="sum-lbl">הכנסה פנויה</div><div class="sum-val green">{{ result()!.netDisposableIncome | number:'1.0-0' }} ₪</div></div>
-    <div class="sum-div"></div>
+
+    <!-- מצב קיים -->
     <div class="sum-item">
-      <div class="sum-lbl">הפרש</div>
-      <div class="sum-val" [class.red]="result()!.diff > 0" [class.green]="result()!.diff <= 0">
-        {{ result()!.diff > 0 ? '▼' : '▲' }} {{ result()!.diff | number:'1.0-0' }} ₪
+      <div class="sum-lbl">מצב קיים</div>
+      <div class="sum-val">
+        {{ getCurrentState() }} 
       </div>
     </div>
+
+    <div class="sum-div"></div>
+
+    <!-- הכנסה פנויה -->
+    <div class="sum-item">
+      <div class="sum-lbl">הכנסה פנויה</div>
+      <div class="sum-val">
+        {{ (r.newIncome + r.totalSavings - r.newExpenses) | number:'1.0-0' }} ₪
+      </div>
+    </div>
+
+    <div class="sum-div"></div>
+
+    <!-- הפרש תזרימי -->
+    <div class="sum-item">
+      <div class="sum-lbl">הפרש תזרימי</div>
+      <div class="sum-val"
+           [class.green]="r.cashFlowDiff >= 0"
+           [class.red]="r.cashFlowDiff < 0">
+        {{ r.cashFlowDiff >= 0 ? '▲' : '▼' }}
+        {{ r.cashFlowDiff | number:'1.0-0' }} ₪
+      </div>
+    </div>
+
+    <div class="sum-div"></div>
+
+    <!-- הפרש כלכלי -->
+    <div class="sum-item">
+      <div class="sum-lbl">הפרש כלכלי</div>
+      <div class="sum-val"
+           [class.green]="r.economicDiff >= 0"
+           [class.red]="r.economicDiff < 0">
+        {{ r.economicDiff >= 0 ? '▲' : '▼' }}
+        {{ r.economicDiff | number:'1.0-0' }} ₪
+      </div>
+    </div>
+
   </div>
 </div>
