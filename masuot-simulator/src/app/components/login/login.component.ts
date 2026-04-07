@@ -11,20 +11,54 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
-  code = ''; password = ''; error = ''; loading = false;
+
+  code = '';
+  password = '';
+  error = '';
+  loading = false;
+  showPassword = false;
+
   constructor(private auth: AuthService) {}
+
   async onSubmit() {
-  if (this.loading) return;
+    if (this.loading) return;
 
-  this.error = '';
-  this.loading = true;
+    // 🔥 ולידציה בסיסית
+    if (!this.code || !this.password) {
+      this.error = 'נא למלא קוד תקציב וסיסמה';
+      return;
+    }
 
-  try {
-    await this.auth.login(this.code, this.password);
-  } catch (err: any) {
-    this.error = err;
-  } finally {
-    this.loading = false;
+    this.error = '';
+    this.loading = true;
+
+    try {
+      await this.auth.login(this.code.trim(), this.password);
+
+      // אם תרצה בעתיד:
+      // ניווט אחרי התחברות
+      // this.router.navigate(['/dashboard']);
+
+    } catch (err: any) {
+
+      // 🔥 טיפול חכם בשגיאות
+      if (typeof err === 'string') {
+        this.error = err;
+      } else if (err?.error?.message) {
+        this.error = err.error.message;
+      } else if (err?.message) {
+        this.error = err.message;
+      } else {
+        this.error = 'שגיאה בהתחברות. נסה שוב.';
+      }
+
+    } finally {
+      this.loading = false;
+    }
   }
-}
+
+  // 🔥 אופציונלי – נוחות
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
 }

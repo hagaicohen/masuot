@@ -1,22 +1,69 @@
-<div class="login-page">
+<div class="login-page" dir="rtl">
   <div class="login-card">
-    <div class="login-logo"><img src="/logo.jpg" alt="משואות יצחק" /></div>
+    
+    <div class="login-logo">
+      <img src="/logo.jpg" alt="משואות יצחק" />
+    </div>
+
     <h1 class="login-title">משואות יצחק</h1>
     <p class="login-sub">סימולטור הכנסה פנויה</p>
+
     <form (ngSubmit)="onSubmit()">
+
+      <!-- קוד תקציב -->
       <div class="field">
         <label>קוד תקציב</label>
-        <input type="text" [(ngModel)]="code" name="code" placeholder="הכנס קוד תקציב" required />
+        <input
+          type="text"
+          [(ngModel)]="code"
+          name="code"
+          placeholder="הכנס קוד תקציב"
+          required
+        />
       </div>
+
+      <!-- סיסמה -->
       <div class="field">
         <label>סיסמה</label>
-        <input type="password" [(ngModel)]="password" name="password" placeholder="הכנס סיסמה" required />
+
+       <div class="password-wrapper">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="הכנס סיסמה"
+            required
+          />
+
+          <span class="toggle-btn" (click)="showPassword = !showPassword">
+
+            <!-- 👁️ eye -->
+            <svg *ngIf="!showPassword" viewBox="0 0 24 24">
+              <path d="M12 5c5 0 9 7 9 7s-4 7-9 7-9-7-9-7 4-7 9-7z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+
+            <!-- 🙈 eye-off -->
+            <svg *ngIf="showPassword" viewBox="0 0 24 24">
+              <path d="M2 2l20 20"/>
+              <path d="M12 5c5 0 9 7 9 7a13.6 13.6 0 0 1-3 3"/>
+              <path d="M9 9a3 3 0 0 0 4 4"/>
+              <path d="M5 12s4 7 9 7a8.6 8.6 0 0 0 3-.5"/>
+            </svg>
+
+          </span>
+        </div>
       </div>
+
+      <!-- שגיאה -->
       <p class="login-error" *ngIf="error">{{ error }}</p>
+
+      <!-- כפתור -->
       <button type="submit" [disabled]="loading">
         <span *ngIf="loading" class="spinner"></span>
         {{ loading ? 'מתחבר...' : 'כניסה' }}
       </button>
+
     </form>
   </div>
 </div>

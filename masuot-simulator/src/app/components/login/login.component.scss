@@ -58,16 +58,57 @@
     font-family: inherit;
     color: var(--color-text-primary);
 
-    &:focus { outline: none; border-color: var(--color-primary-light); }
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary-light);
+    }
   }
 }
 
+/* ===== PASSWORD FIELD ===== */
+.password-wrapper {
+  position: relative;
+
+  input {
+    padding-left: 36px;
+  }
+
+  .toggle-btn {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+
+    width: 20px;
+    height: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  svg {
+    width: 18px;   /* 🔥 שליטה אמיתית */
+    height: 18px;
+    stroke: #666;
+    fill: none;
+    stroke-width: 2;
+  }
+
+  .toggle-btn:hover svg {
+    stroke: #000;
+  }
+}
+
+/* ===== ERROR ===== */
 .login-error {
   font-size: 13px;
   color: var(--color-red);
   margin-bottom: 12px;
 }
 
+/* ===== BUTTON ===== */
 button {
   width: 100%;
   background: var(--color-primary);
@@ -80,10 +121,17 @@ button {
   font-family: inherit;
   cursor: pointer;
 
-  &:hover    { background: var(--color-primary-light); }
-  &:disabled { opacity: 0.6; cursor: not-allowed; }
+  &:hover {
+    background: var(--color-primary-light);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
+/* ===== MOBILE ===== */
 @media (max-width: 480px) {
   .login-page {
     padding: 0;
@@ -101,6 +149,7 @@ button {
   }
 }
 
+/* ===== SPINNER ===== */
 .spinner {
   display: inline-block;
   width: 16px;
@@ -114,5 +163,7 @@ button {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
