@@ -17,7 +17,19 @@ export class NewStateComponent {
     const r = this.result();
     if (!r) return '';
 
-    const val = this.familyService.round(r.netDisposableIncome);
+    const disposable =
+      (r.newIncome || 0) +
+      (r.totalSavings || 0) -
+      (r.newExpenses || 0);
+
+    // 🔥 DEBUG LOGS
+    /*
+    console.log('newIncome:', r.newIncome);
+    console.log('totalSavings:', r.totalSavings);
+    console.log('newExpenses:', r.newExpenses);
+    console.log('disposable:', disposable);*/
+
+    const val = this.familyService.round(disposable);
 
     return 'הכנסה פנויה: ' + val.toLocaleString('he-IL') + ' ₪';
   }

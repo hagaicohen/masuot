@@ -175,7 +175,7 @@ def main():
 
         key = (code, member_code)
 
-        salary = to_num(row[12].value)  # M
+        salary = to_num(row[13].value)  # N
 
         salary_map[key] = salary_map.get(key, 0) + salary
 

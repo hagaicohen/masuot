@@ -99,27 +99,43 @@ export class SimulatorService {
     );
   }
 
-  private calcTaka(f: any, netSalary: number): number {
+private calcTaka(f: any, netSalary: number): number {
     const rules = f.rules || {};
     const inputs = f.inputs || {};
 
     const allowances = Number(inputs.child_allowance || 0);
 
-    const extraIncome =
-      Number(inputs.pension || 0) +
-      Number(inputs.survivors || 0) +
-      Number(inputs.old_age_allowance || 0);
+    // 🔥 לפי אקסל — רק נטו + קצבאות ילדים
+    const incomeForStandard =
+      netSalary +
+      allowances;
 
-    const incomeSum = netSalary + allowances + extraIncome;
+    const incomeSum =
+      netSalary +
+      allowances;
 
     const takaBase = Number(rules.F21 || 0);
     const familyStandard = parseFloat(f.family_standard ?? f.familyStandard ?? '0');
 
-    const incomeForStandard = Number(inputs.flow_income || 0);
+    // 🔥 DEBUG LOGS
+    /*console.log('--- TAKA DEBUG ---');
+    console.log('netSalary:', netSalary);
+    console.log('allowances:', allowances);
+    console.log('incomeForStandard:', incomeForStandard);
+    console.log('takaBase F21:', takaBase);
+    console.log('condition:', incomeForStandard < takaBase);*/
 
     if (incomeForStandard < takaBase) {
-      return (takaBase * familyStandard) - incomeSum;
+      const taka = (takaBase * familyStandard) - incomeSum;
+
+      /*console.log('taka (calculated):', taka);
+      console.log('-------------------');*/
+
+      return taka;
     }
+
+    /*console.log('taka: 0 (condition false)');
+    console.log('-------------------');*/
 
     return 0;
   }
@@ -208,16 +224,53 @@ export class SimulatorService {
 
     const currentState = Number(f.current_state ?? 0);
 
+    // ===============================
+    // 🔥 NEW MODEL (רק הוספה)
+    // ===============================
+
+    // 🔥 ADDED — הכנסות חדשות מלאות
+    const newIncome =
+      updatedNetSalary +
+      Number(f.inputs?.pension ?? 0) +
+      Number(f.inputs?.survivors ?? 0) +
+      Number(f.inputs?.old_age_allowance ?? 0) +
+      Number(f.inputs?.child_allowance ?? 0) +
+      this.calcTaka(f, updatedNetSalary);
+
+    // 🔥 ADDED — הוצאות חדשות
+    const newExpenses =
+      educationNet +
+      healthExpenses +
+      taxes;
+
+    // 🔥 ADDED — מצב קיים מפורק
+    const currentStateBreakdown =
+      Number(f.budget_distribution ?? 0) +
+      Number(f.personal_bonus ?? 0) +
+      Number(f.women_work_benefit ?? 0) +
+      Number(f.travel ?? 0) +
+      Number(f.periodic_grant ?? 0) +
+      Number(f.special_help ?? 0);
+
     // 🔥 ADDED — הפרש תזרימי
-    const cashFlowDiff = currentState - (totalIncome - totalExpenses);
+    const cashFlowDiff = newIncome - newExpenses;
 
-    // 🔥 ADDED — הפרש כלכלי
-    const economicDiff = currentState - (totalIncome - totalExpenses + totalSavings);
+    // 🔥 ADDED — הפרש כלכלי (כולל חסכונות)
+    const economicDiff = cashFlowDiff - totalSavings;
 
+    // 🔥 DEBUG — newIncome breakdown
+console.log('--- NEW INCOME DEBUG ---');
+console.log('updatedNetSalary:', updatedNetSalary);
+console.log('pension:', Number(f.inputs?.pension ?? 0));
+console.log('survivors:', Number(f.inputs?.survivors ?? 0));
+console.log('old_age_allowance:', Number(f.inputs?.old_age_allowance ?? 0));
+console.log('child_allowance:', Number(f.inputs?.child_allowance ?? 0));
 
-    // 🔥 ADDED — debug logs
-console.log('cashFlowDiff:', cashFlowDiff);
-console.log('economicDiff:', economicDiff);
+const takaDebug = this.calcTaka(f, updatedNetSalary);
+console.log('taka:', takaDebug);
+
+console.log('newIncome TOTAL:', newIncome);
+console.log('------------------------');
 
     return {
       currentState,
@@ -250,10 +303,14 @@ console.log('economicDiff:', economicDiff);
 
       diff: currentState - netDisposableIncome,
 
-      // 🔥 ADDED — החזרה ל־UI
+      // 🔥 ADDED
+      newIncome,
+      newExpenses,
+      currentStateBreakdown,
       cashFlowDiff,
       economicDiff
     };
+    
   });
 
   updateExpectedSalary(memberId: string, value: number) {
