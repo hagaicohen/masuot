@@ -99,46 +99,102 @@ export class SimulatorService {
     );
   }
 
-private calcTaka(f: any, netSalary: number): number {
-    const rules = f.rules || {};
+  private calcTaka(f: any, netSalary: number): number {
     const inputs = f.inputs || {};
 
-    const allowances = Number(inputs.child_allowance || 0);
-
-    // 🔥 לפי אקסל — רק נטו + קצבאות ילדים
-    const incomeForStandard =
-      netSalary +
-      allowances;
+    const takaBase = Number(f.rules?.F21 ?? 0);
+    const familyStandard = Number(f.family_standard ?? f.familyStandard ?? 1);
 
     const incomeSum =
       netSalary +
-      allowances;
+      Number(inputs.pension ?? 0) +
+      Number(inputs.survivors ?? 0) +
+      Number(inputs.old_age_allowance ?? 0) +
+      Number(inputs.child_allowance ?? 0);
 
-    const takaBase = Number(rules.F21 || 0);
-    const familyStandard = parseFloat(f.family_standard ?? f.familyStandard ?? '0');
+    const incomeForStandard = incomeSum / familyStandard;
 
-    // 🔥 DEBUG LOGS
-    /*console.log('--- TAKA DEBUG ---');
-    console.log('netSalary:', netSalary);
-    console.log('allowances:', allowances);
-    console.log('incomeForStandard:', incomeForStandard);
+    // 🔥 DEBUG — 1:1 מול אקסל
+    console.log('--- TAKA DEBUG ---');
+
+    console.log('netSalary (שכר נטו מעודכן):', netSalary);
+    console.log('pension:', Number(inputs.pension ?? 0));
+    console.log('survivors:', Number(inputs.survivors ?? 0));
+    console.log('old_age_allowance:', Number(inputs.old_age_allowance ?? 0));
+    console.log('child_allowance:', Number(inputs.child_allowance ?? 0));
+
+    console.log('incomeSum (סה"כ הכנסות):', incomeSum);
+
+    console.log('familyStandard (תקן משפחתי):', familyStandard);
+    console.log('incomeForStandard (הכנסה לתקן):', incomeForStandard);
+
     console.log('takaBase F21:', takaBase);
-    console.log('condition:', incomeForStandard < takaBase);*/
+    console.log('threshold (F21 * תקן):', takaBase * familyStandard);
+
+    console.log('condition (incomeForStandard < F21):', incomeForStandard < takaBase);
 
     if (incomeForStandard < takaBase) {
       const taka = (takaBase * familyStandard) - incomeSum;
-
-      /*console.log('taka (calculated):', taka);
-      console.log('-------------------');*/
-
+      console.log('taka RESULT:', taka);
+      console.log('--------------------');
       return taka;
     }
 
-    /*console.log('taka: 0 (condition false)');
-    console.log('-------------------');*/
-
-    return 0;
+    console.log('taka RESULT: 0');
+    console.log('--------------------');
+    return 0; 
   }
+
+  private calcTaka_old(f: any, netSalary: number): number {
+      const rules = f.rules || {};
+      const inputs = f.inputs || {};
+
+      const allowances = Number(inputs.child_allowance || 0);
+
+      // 🔥 לפי אקסל — רק נטו + קצבאות ילדים
+      const incomeForStandard =
+        netSalary +
+        allowances;
+
+      const incomeSum =
+        netSalary +
+        allowances;
+
+      const takaBase = Number(rules.F21 || 0);
+      const familyStandard = parseFloat(f.family_standard ?? f.familyStandard ?? '0');
+
+      // 🔥 DEBUG LOGS
+      console.log('--- TAKA DEBUG 2 ---');
+      /*console.log('netSalary (UI):', netSalary);
+      console.log('incomeForStandard (DB):', f.incomeForStandard);
+      console.log('familyStandard:', familyStandard);
+      console.log('threshold:', takaBase * familyStandard);*/
+      console.log('--- TAKA EXCEL DEBUG ---');
+
+      console.log('הכנסה לתקן (incomeForStandard):', f.incomeForStandard);
+
+      console.log('תקן משפחתי (familyStandard):',
+        f.family_standard ?? f.familyStandard
+      );
+
+      console.log('F21 (takaBase):', f.rules?.F21);
+
+      console.log('שכר נטו מעודכן (netSalary):', netSalary);
+
+      console.log('קצבאות ילדים (child_allowance):',
+        f.inputs?.child_allowance
+      );
+
+      console.log('---------------------------');
+
+      if (incomeForStandard < takaBase * familyStandard) {
+        const taka = (takaBase * familyStandard) - incomeSum;
+
+        return taka;
+      }
+
+      return 0;
+    }
 
   private calcCashIncome(netSalaryParents: number, f: any): number {
 
@@ -178,6 +234,9 @@ private calcTaka(f: any, netSalary: number): number {
 
     const netSalaryParents = this.netSalaryParents();
     const updatedNetSalary = f.updatedNetSalary ?? netSalaryParents;
+    
+    // 🔥 ADDED — expose taka to UI
+    const taka = this.calcTaka(f, updatedNetSalary);
 
     const mutualResponsibility = this.calcMutualResponsibility(
       updatedNetSalary,
@@ -186,7 +245,14 @@ private calcTaka(f: any, netSalary: number): number {
     );
 
     const childAllowances = Number(f.inputs?.child_allowance ?? 0);
-    const totalIncome = netSalaryParents + childAllowances;
+    //const totalIncome = netSalaryParents + childAllowances;
+    const totalIncome =
+    updatedNetSalary +
+    Number(f.inputs?.pension ?? 0) +
+    Number(f.inputs?.survivors ?? 0) +
+    Number(f.inputs?.old_age_allowance ?? 0) +
+    Number(f.inputs?.child_allowance ?? 0) +
+    taka;
 
     const educationExpensesRaw = this.calcEducation(f);
     const healthExpenses = this.familyService.round(this.calcHealth(f));
@@ -271,7 +337,8 @@ console.log('taka:', takaDebug);
 console.log('newIncome TOTAL:', newIncome);
 console.log('------------------------');
 
-    return {
+
+    const resultObj = {
       currentState,
 
       totalIncome,
@@ -302,6 +369,13 @@ console.log('------------------------');
 
       diff: currentState - netDisposableIncome,
 
+
+      // 🔥 תוסיף את זה:
+      childAllowances: Number(f.inputs?.child_allowance ?? 0),
+      pensionAddition: Number(f.inputs?.pension ?? 0),
+      survivorPension: Number(f.inputs?.survivors ?? 0),
+      oldAgePension: Number(f.inputs?.old_age_allowance ?? 0),
+      taka,
       // 🔥 ADDED
       newIncome,
       newExpenses,
@@ -310,6 +384,10 @@ console.log('------------------------');
       economicDiff
     };
     
+    //console.log('🔥 RESULT DEBUG:', resultObj);
+
+    // 👇 מחזירים
+    return resultObj;
   });
 
   updateExpectedSalary(memberId: string, value: number) {

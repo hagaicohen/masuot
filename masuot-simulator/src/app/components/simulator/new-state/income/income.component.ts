@@ -21,7 +21,7 @@ export class IncomeComponent {
     return this.familyService.round(n).toLocaleString('he-IL') + ' ₪';
   }
 
-  private computeIncome(data: any) {
+  private computeIncome_DEPRCATED(data: any) {
     if (!data) return null;
 
     const f = data;
@@ -68,7 +68,7 @@ export class IncomeComponent {
     };
   }
 
-  result = computed(() => this.computeIncome(this.root()));
+  result = this.simulator.result;
 
   get badge() {
     const r = this.result();

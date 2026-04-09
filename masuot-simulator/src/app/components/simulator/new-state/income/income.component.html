@@ -1,47 +1,47 @@
 <ng-container *ngIf="!simulator.loading(); else spinner">
 
-  <ng-container *ngIf="result() as r">
+  <ng-container *ngIf="result() !== null">
 
     <app-accordion-panel title="הכנסות" [badge]="badge" [level]="2">
 
       <div class="leaf">
         <span class="leaf-label">שכר נטו</span>
-        <span class="leaf-val green">{{ r.netSalary | number:'1.0-0' }} ₪</span>
+        <span class="leaf-val green">{{ result()!.netSalary | number:'1.0-0' }} ₪</span>
       </div>
 
       <div class="leaf">
         <span class="leaf-label">שכר נטו מעודכן</span>
-        <span class="leaf-val green">{{ r.updatedNetSalary | number:'1.0-0' }} ₪</span>
+        <span class="leaf-val green">{{ result()!.updatedNetSalary | number:'1.0-0' }} ₪</span>
       </div>
 
       <div class="leaf">
         <span class="leaf-label">פנסיה</span>
-        <span class="leaf-val green">{{ r.pensionAddition | number:'1.0-0' }} ₪</span>
+        <span class="leaf-val green">{{ result()!.pensionAddition | number:'1.0-0' }} ₪</span>
       </div>
 
       <div class="leaf">
         <span class="leaf-label">שארים</span>
-        <span class="leaf-val green">{{ r.survivorPension | number:'1.0-0' }} ₪</span>
+        <span class="leaf-val green">{{ result()!.survivorPension | number:'1.0-0' }} ₪</span>
       </div>
 
       <div class="leaf">
         <span class="leaf-label">קצבת זקנה</span>
-        <span class="leaf-val green">{{ r.oldAgePension | number:'1.0-0' }} ₪</span>
+        <span class="leaf-val green">{{ result()!.oldAgePension | number:'1.0-0' }} ₪</span>
       </div>
 
       <div class="leaf">
         <span class="leaf-label">קצבאות ילדים</span>
-        <span class="leaf-val green">{{ r.childAllowances | number:'1.0-0' }} ₪</span>
+        <span class="leaf-val green">{{ result()!.childAllowances | number:'1.0-0' }} ₪</span>
       </div>
 
       <div class="leaf">
         <span class="leaf-label">תק״ה</span>
-        <span class="leaf-val green">{{ r.takeHomeAddition | number:'1.0-0' }} ₪</span>
+        <span class="leaf-val green">{{ result()!.taka | number:'1.0-0' }} ₪</span>
       </div>
 
       <div class="total-row">
         <span>סה"כ הכנסות</span>
-        <span class="leaf-val green">{{ r.totalIncome | number:'1.0-0' }} ₪</span>
+        <span class="leaf-val green">{{ result()!.totalIncome | number:'1.0-0' }} ₪</span>
       </div>
 
     </app-accordion-panel>
