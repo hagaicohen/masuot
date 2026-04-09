@@ -1,31 +1,73 @@
-<app-accordion-panel title="בריאות" [badge]="badge" [level]="3" [badgeRed]="true">
+<ng-container *ngIf="result() as r">
 
-  <div class="table-wrapper">
-    <table class="health-table">
-      <thead>
-        <tr>
-          <th>נפשות</th>
-          <th>עד 50</th>
-          <th>50–70</th>
-          <th>70+</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>{{ family()?.inputs?.health_total }}</td>
-          <td>{{ family()?.inputs?.health_0_50 }}</td>
-          <td>{{ family()?.inputs?.health_50_70 }}</td>
-          <td>{{ family()?.inputs?.health_70_plus }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <app-accordion-panel title="בריאות" [badge]="badge" [level]="3" [badgeRed]="true">
 
-  <div class="total-row">
-    <span>סה"כ בריאות</span>
-    <span class="leaf-val red">
-      {{ result()!.healthExpenses | number:'1.0-0' }} ₪
-    </span>
-  </div>
+    <div class="inner-padded">
 
-</app-accordion-panel>
+      <table class="edu-table">
+
+        <thead>
+          <tr>
+            <th>סוג</th>
+            <th>כמות</th>
+            <th>מחיר ליח'</th>
+            <th class="total">סה"כ</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <!-- בסיס -->
+          <tr>
+            <td>בסיס</td>
+            <td>{{ family()?.inputs?.health_total || 0 }}</td>
+            <td>{{ (family()?.rules?.['health_total'] || 0) | number:'1.0-0' }} ₪</td>
+            <td class="total red">
+              {{ ((family()?.inputs?.health_total || 0) * (family()?.rules?.['health_total'] || 0)) | number:'1.0-0' }} ₪
+            </td>
+          </tr>
+
+          <!-- גילאים -->
+          <tr>
+            <td>עד 50</td>
+            <td>{{ family()?.inputs?.health_0_50 || 0 }}</td>
+            <td>{{ (family()?.rules?.['health_0_50'] || 0) | number:'1.0-0' }} ₪</td>
+            <td class="total red">
+              {{ ((family()?.inputs?.health_0_50 || 0) * (family()?.rules?.['health_0_50'] || 0)) | number:'1.0-0' }} ₪
+            </td>
+          </tr>
+
+          <tr>
+            <td>50–70</td>
+            <td>{{ family()?.inputs?.health_50_70 || 0 }}</td>
+            <td>{{ (family()?.rules?.['health_50_70'] || 0) | number:'1.0-0' }} ₪</td>
+            <td class="total red">
+              {{ ((family()?.inputs?.health_50_70 || 0) * (family()?.rules?.['health_50_70'] || 0)) | number:'1.0-0' }} ₪
+            </td>
+          </tr>
+
+          <tr>
+            <td>70+</td>
+            <td>{{ family()?.inputs?.health_70_plus || 0 }}</td>
+            <td>{{ (family()?.rules?.['health_70_plus'] || 0) | number:'1.0-0' }} ₪</td>
+            <td class="total red">
+              {{ ((family()?.inputs?.health_70_plus || 0) * (family()?.rules?.['health_70_plus'] || 0)) | number:'1.0-0' }} ₪
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+    <div class="total-row">
+      <span>סה"כ הוצאות בריאות</span>
+      <span class="leaf-val red">
+        {{ r.healthExpenses | number:'1.0-0' }} ₪
+      </span>
+    </div>
+
+  </app-accordion-panel>
+
+</ng-container>

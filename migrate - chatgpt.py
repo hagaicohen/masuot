@@ -246,7 +246,7 @@ def main():
     )
     """)
 
-    row = next(summary.iter_rows(min_row=2))
+    row = next(summary.iter_rows(min_row=1))
 
     cur.execute("""
     INSERT INTO rules VALUES (%s, %s, %s, %s, %s, %s,

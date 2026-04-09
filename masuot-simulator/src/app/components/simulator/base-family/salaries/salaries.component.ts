@@ -69,7 +69,7 @@ export class SalariesComponent {
     if (this.isMobile) {
       return `${m.name}`;
     }
-    return `[${index + 1}] — ${m.name}`;
+    return `[${index + 1}] ${m.name}`;
   }
 
  getSortedMembers() {
