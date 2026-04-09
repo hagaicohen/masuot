@@ -205,10 +205,9 @@ private calcTaka(f: any, netSalary: number): number {
     const balanceTax = netSalaryParents * (p.balanceTaxRate ?? 0);
 
     const taxes =
-      balanceTax +
       mutualResponsibility +
-      Number(f.communityTax ?? 0) +
-      Number(f.municipalTax ?? 0) +
+      Number(f.community_tax ?? 0) +
+      Number(f.municipal_tax ?? 0) +
       Number(f.arnona ?? 0);
 
     const totalExpenses =
@@ -289,8 +288,8 @@ console.log('------------------------');
       balanceTax,
       mutualResponsibility,
 
-      communityTax: f.communityTax ?? 0,
-      municipalTax: f.municipalTax ?? 0,
+      communityTax: f.community_tax ?? 0,
+      municipalTax: f.municipal_tax ?? 0,
       arnona: f.arnona ?? 0,
 
       totalExpenses,

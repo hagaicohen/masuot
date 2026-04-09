@@ -50,6 +50,10 @@ export class FamilyService {
         familyStandard: Number(data.family.family_standard ?? 0),
         incomeForStandard: Number(data.family.income_for_standard ?? 0),
 
+        arnona: Number(data.family?.arnona ?? 0),
+        community_tax: Number(data.family?.community_tax ?? 0),
+        municipal_tax: Number(data.family?.municipal_tax ?? 0),
+
         members,
         children,
 
@@ -87,6 +91,7 @@ export class FamilyService {
 
         rules: data.rules
       };
+
 
       const healthCost = this.calculateHealthCost(baseFamily);
 
