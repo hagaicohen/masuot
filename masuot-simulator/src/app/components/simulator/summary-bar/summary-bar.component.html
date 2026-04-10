@@ -21,29 +21,39 @@
 
     <div class="sum-div"></div>
 
-    <!-- הפרש תזרימי -->
-    <div class="sum-item">
-      <div class="sum-lbl">הפרש תזרימי</div>
-      <div class="sum-val"
-           [class.green]="r.cashFlowDiff >= 0"
-           [class.red]="r.cashFlowDiff < 0">
-        {{ r.cashFlowDiff >= 0 ? '▲' : '▼' }}
-        {{ r.cashFlowDiff | number:'1.0-0' }} ₪
-      </div>
-    </div>
+   <!-- הפרש תזרימי -->
+<div class="sum-item">
+  <div class="sum-lbl">הפרש תזרימי</div>
+  <div class="sum-val"
+       [class.green]="r.cashFlowDiff >= 0"
+       [class.red]="r.cashFlowDiff < 0">
 
-    <div class="sum-div"></div>
+    {{ r.cashFlowDiff >= 0 ? '▲' : '▼' }}
 
-    <!-- הפרש כלכלי -->
-    <div class="sum-item">
-      <div class="sum-lbl">הפרש כלכלי</div>
-      <div class="sum-val"
-           [class.green]="r.economicDiff >= 0"
-           [class.red]="r.economicDiff < 0">
-        {{ r.economicDiff >= 0 ? '▲' : '▼' }}
-        {{ r.economicDiff | number:'1.0-0' }} ₪
-      </div>
-    </div>
+    <span class="num">
+      {{ r.cashFlowDiff | number:'1.0-0' }}
+    </span>&nbsp;₪
+
+  </div>
+</div>
+
+<div class="sum-div"></div>
+
+<!-- הפרש כלכלי -->
+<div class="sum-item">
+  <div class="sum-lbl">הפרש כלכלי</div>
+  <div class="sum-val"
+       [class.green]="r.economicDiff >= 0"
+       [class.red]="r.economicDiff < 0">
+
+    {{ r.economicDiff >= 0 ? '▲' : '▼' }}
+
+    <span class="num">
+      {{ r.economicDiff | number:'1.0-0' }}
+    </span>&nbsp;₪
+
+  </div>
+</div>
 
   </div>
 </div>
