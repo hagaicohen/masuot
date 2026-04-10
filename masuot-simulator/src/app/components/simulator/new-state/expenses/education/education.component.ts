@@ -20,9 +20,10 @@ export class EducationComponent {
   inputs = inject(SimulatorService).inputs;
   rules  = inject(SimulatorService).rules;
 
+  // 🔴 FIX — הבאנר מציג הוצאה בפועל (כולל השתתפות)
   get badge() {
     const r = this.result();
-    return r ? r.educationExpenses.toLocaleString('he-IL') + ' ₪' : '';
+    return r ? r.educationNet.toLocaleString('he-IL') + ' ₪' : '';
   }
 
   eduLabel(level: string): string {

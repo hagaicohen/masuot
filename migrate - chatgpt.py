@@ -12,6 +12,7 @@ def connect():
         user="postgres.jhkxyiiwtxtgqxovljkl",
         password="__Por@t2019!")
 
+
 def to_num(v):
     try:
         return float(v)
@@ -29,6 +30,37 @@ def norm_id(v):
     except:
         return str(v).strip()
 
+def ensure_column_exists(cur):
+    """
+    🔥 UPDATED — now ensures BOTH columns exist
+    """
+
+    # 🔥 EXISTING
+    cur.execute("""
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name='families' AND column_name='health_participation'
+    """)
+    if not cur.fetchone():
+        print("Adding column health_participation...")
+        cur.execute("""
+            ALTER TABLE families 
+            ADD COLUMN health_participation NUMERIC DEFAULT 0
+        """)
+
+    # 🔥 ADDED — AS column (mutual responsibility cap)
+    cur.execute("""
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name='families' AND column_name='mutual_responsibility_cap'
+    """)
+    if not cur.fetchone():
+        print("Adding column mutual_responsibility_cap...")
+        cur.execute("""
+            ALTER TABLE families 
+            ADD COLUMN mutual_responsibility_cap NUMERIC DEFAULT 0
+        """)
+
 def main():
     conn = connect()
     cur = conn.cursor()
@@ -40,23 +72,24 @@ def main():
     salary_sheet = wb["הכנסות שכר "]
     discount_sheet = wb["הנחות "]
 
+    ensure_column_exists(cur)
+
     print("Cleaning tables...")
     cur.execute("TRUNCATE TABLE members RESTART IDENTITY CASCADE")
     cur.execute("TRUNCATE TABLE families CASCADE")
     cur.execute("TRUNCATE TABLE rules CASCADE")
 
-    # 🔥 ADDED — savings map (O,P from salary sheet)
     savings_map = {}
     for row in salary_sheet.iter_rows(min_row=9):
-        code = row[0].value  # A
+        code = row[0].value
 
         if not is_valid(code):
             continue
 
         code = str(code).strip()
 
-        hishtalmut = to_num(row[14].value)  # O
-        pension = to_num(row[15].value)     # P
+        hishtalmut = to_num(row[14].value)
+        pension = to_num(row[15].value)
 
         if code not in savings_map:
             savings_map[code] = {"hishtalmut": 0, "pension": 0}
@@ -64,9 +97,6 @@ def main():
         savings_map[code]["hishtalmut"] += hishtalmut
         savings_map[code]["pension"] += pension
 
-    # =========================
-    # FAMILIES (unchanged)
-    # =========================
     families_data = []
 
     for row in summary.iter_rows(min_row=2):
@@ -79,6 +109,9 @@ def main():
             continue
 
         code = str(code).strip()
+
+        health_participation = to_num(row[42].value)
+        mutual_responsibility_cap = to_num(row[44].value)
 
         families_data.append((
             code,
@@ -113,7 +146,9 @@ def main():
             to_num(row[10].value),
             to_num(row[11].value),
 
-            # 🔥 ADDED — values from savings_map
+            health_participation,
+            mutual_responsibility_cap,
+
             savings_map.get(code, {}).get("hishtalmut", 0),
             savings_map.get(code, {}).get("pension", 0)
         ))
@@ -150,6 +185,9 @@ def main():
             middle,
             high,
 
+            health_participation,
+            mutual_responsibility_cap,
+
             hishtalmut_fund,
             pension_contribution
         ) VALUES %s
@@ -158,15 +196,15 @@ def main():
     print("Families:", len(families_data))
 
     # =========================
-    # MEMBERS (FINAL FIX)
+    # MEMBERS (unchanged)
     # =========================
     print("Importing members...")
 
     salary_map = {}
 
     for row in salary_sheet.iter_rows(min_row=9):
-        code = row[0].value        # A
-        member_code = norm_id(row[2].value)  # C
+        code = row[0].value
+        member_code = norm_id(row[2].value)
 
         if not is_valid(code) or not is_valid(member_code):
             continue
@@ -174,17 +212,15 @@ def main():
         code = str(code).strip()
 
         key = (code, member_code)
-
-        salary = to_num(row[13].value)  # N
+        salary = to_num(row[13].value)
 
         salary_map[key] = salary_map.get(key, 0) + salary
 
     members_data = []
 
     for row in members_sheet.iter_rows(min_row=2):
-        code = row[7].value              # H
-
-        member_code = norm_id(row[0].value)   # A
+        code = row[7].value
+        member_code = norm_id(row[0].value)
         first_name = row[1].value
         last_name = row[2].value
         age = to_num(row[6].value)
@@ -195,7 +231,6 @@ def main():
         code = str(code).strip()
 
         key = (code, member_code)
-
         net_salary = salary_map.get(key, 0)
 
         members_data.append((
@@ -221,7 +256,7 @@ def main():
     print("Members:", len(members_data))
 
     # =========================
-    # RULES (unchanged)
+    # 🔥 ADDED — RULES (בלבד)
     # =========================
     print("Rebuilding rules...")
 
@@ -243,6 +278,7 @@ def main():
         K6 NUMERIC, J6 NUMERIC, L6 NUMERIC, M5 NUMERIC,
         K7 NUMERIC, J7 NUMERIC, L7 NUMERIC, M6 NUMERIC,
         F16 NUMERIC, F21 NUMERIC
+
     )
     """)
 
@@ -253,7 +289,8 @@ def main():
                              %s, %s, %s, %s,
                              %s, %s, %s, %s, %s, %s,
                              %s, %s, %s, %s,
-                             %s, %s)
+                             %s, %s
+                             )
     """, (
         "default",
         to_num(row[7].value),
@@ -282,23 +319,6 @@ def main():
         to_num(discount_sheet.cell(row=16, column=6).value),
         to_num(discount_sheet.cell(row=21, column=6).value)
     ))
-
-    cur.execute("""
-    CREATE INDEX IF NOT EXISTS idx_families_budget_code
-    ON families(budget_code);
-    """)
-
-    cur.execute("""
-    CREATE INDEX IF NOT EXISTS idx_members_budget_code
-    ON members(budget_code);
-    """)
-
-    cur.execute("""
-    CREATE INDEX IF NOT EXISTS idx_members_member_code
-    ON members(member_code);
-    """)
-
-    print("Rules rebuilt")
 
     conn.commit()
     conn.close()

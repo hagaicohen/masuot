@@ -55,16 +55,28 @@
             </td>
           </tr>
 
+          <!-- 🔥 ADDED — השתתפות -->
+          <tr class="participation" *ngIf="family()?.inputs?.health_participation">
+            <td colspan="3">השתתפות בהוצאות בריאות</td>
+
+            <!-- 🔥 ADDED style -->
+            <td class="total green" style="text-align: left;">
+              <span class="num">
+                {{ -(family()?.inputs?.health_participation || 0) | number:'1.0-0' }}
+              </span>&nbsp;₪
+            </td>
+          </tr>
         </tbody>
 
       </table>
 
     </div>
 
+    <!-- 🔥 UPDATED — הפחתת השתתפות -->
     <div class="total-row">
       <span>סה"כ הוצאות בריאות</span>
       <span class="leaf-val red">
-        {{ r.healthExpenses | number:'1.0-0' }} ₪
+        {{ (r.healthExpenses - Math.abs(family()?.inputs?.health_participation || 0)) | number:'1.0-0' }} ₪
       </span>
     </div>
 

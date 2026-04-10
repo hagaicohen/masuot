@@ -333,6 +333,10 @@ body {
   }
 }
 
+.participation td:first-child {
+  white-space: nowrap;
+}
+
 .num {
   direction: ltr;
   unicode-bidi: isolate;

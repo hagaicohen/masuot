@@ -18,19 +18,12 @@ export class NewStateComponent {
     if (!r) return '';
 
     const disposable =
-      (r.newIncome || 0) +
-      (r.totalSavings || 0) -
+      (r.newIncome || 0) -
+      /*(r.totalSavings || 0) -*/
       (r.newExpenses || 0);
-
-    // 🔥 DEBUG LOGS
-    /*
-    console.log('newIncome:', r.newIncome);
-    console.log('totalSavings:', r.totalSavings);
-    console.log('newExpenses:', r.newExpenses);
-    console.log('disposable:', disposable);*/
 
     const val = this.familyService.round(disposable);
 
-    return 'הכנסה פנויה: ' + val.toLocaleString('he-IL') + ' ₪';
+    return 'הכנסות - הוצאות: ' + val.toLocaleString('he-IL') + ' ₪';
   }
 }

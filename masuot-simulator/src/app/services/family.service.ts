@@ -53,6 +53,7 @@ export class FamilyService {
         arnona: Number(data.family?.arnona ?? 0),
         community_tax: Number(data.family?.community_tax ?? 0),
         municipal_tax: Number(data.family?.municipal_tax ?? 0),
+        mutual_responsibility_cap:Number(data.family?.mutual_responsibility_cap ?? 0),
 
         members,
         children,

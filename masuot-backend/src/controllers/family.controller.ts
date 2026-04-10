@@ -62,6 +62,12 @@ function normalizeFamily(raw: any) {
     health_50_70: Number(raw.health_50_70 || 0),
     health_70_plus: Number(raw.health_70_plus || 0),
 
+    // 🔥 EXISTING — השתתפות בריאות
+    health_participation: Number(raw.health_participation || 0),
+
+    // 🔥 ADDED — הגבלת מס ערבות הדדית (AS)
+    mutual_responsibility_cap: Number(raw.mutual_responsibility_cap || 0),
+
     toddlers: Number(raw.toddlers || 0),
     kindergarten: Number(raw.kindergarten || 0),
     elementary: Number(raw.elementary || 0),
@@ -96,6 +102,12 @@ function mapToInputs(family: any, members: any[]) {
     health_50_70: family.health_50_70,
     health_70_plus: family.health_70_plus,
 
+    // 🔥 EXISTING
+    health_participation: family.health_participation,
+
+    // 🔥 ADDED — שיהיה זמין ל-Angular
+    mutual_responsibility_cap: family.mutual_responsibility_cap,
+
     toddlers: family.toddlers,
     kindergarten: family.kindergarten,
     elementary: family.elementary,
@@ -105,7 +117,7 @@ function mapToInputs(family: any, members: any[]) {
 }
 
 // =========================
-// 🔥 FIX אמיתי ל-RULES
+// RULES
 // =========================
 function normalizeRules(rows: any) {
   const r = rows?.[0] ?? {};
@@ -122,7 +134,6 @@ function normalizeRules(rows: any) {
     health_50_70: Number(r.health_50_70 ?? 0),
     health_70_plus: Number(r.health_70_plus ?? 0),
 
-    // 🔥 LOWERCASE (זה כל הסיפור)
     K5: Number(r.k5 ?? 0),
     L5: Number(r.l5 ?? 0),
 
@@ -165,8 +176,6 @@ async function buildResponse(budget_code: string) {
     rules: normalizeRules(rulesRes.rows)
   };
 }
-
-
 
 // =========================
 // GET FAMILY

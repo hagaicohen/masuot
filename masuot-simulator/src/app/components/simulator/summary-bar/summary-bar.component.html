@@ -11,11 +11,11 @@
 
     <div class="sum-div"></div>
 
-    <!-- הכנסה פנויה -->
+    <!-- מצב חדש -->
     <div class="sum-item">
-      <div class="sum-lbl">הכנסה פנויה</div>
+      <div class="sum-lbl">מצב חדש</div>
       <div class="sum-val">
-        {{ (r.newIncome + r.totalSavings - r.newExpenses) | number:'1.0-0' }} ₪
+        {{ (r.newIncome - r.newExpenses) | number:'1.0-0' }} ₪
       </div>
     </div>
 

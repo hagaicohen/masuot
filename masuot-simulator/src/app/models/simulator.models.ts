@@ -24,6 +24,7 @@ export interface SimulatorInputs {
   women_work_benefit: number;
 
   community_tax: number;
+  mutual_responsibility_cap:number;
   municipal_tax: number;
   arnona: number;
 

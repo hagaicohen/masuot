@@ -62,12 +62,15 @@
           </td>
         </tr>
 
+        <!-- השארנו רק שורת השתתפות בתוך הטבלה -->
         <tr class="participation" *ngIf="r.educationParticipation > 0">
           <td>השתתפות בעלויות חינוך</td>
           <td></td>
           <td></td>
           <td class="total green">
-            -{{ r.educationParticipation | number:'1.0-0' }} ₪
+            <span class="num">
+              {{ -r.educationParticipation | number:'1.0-0' }}
+            </span> ₪
           </td>
         </tr>
 
@@ -77,24 +80,11 @@
 
   </div>
 
-  <div class="total-row">
-    <span>סה"כ הוצאות חינוך</span>
-    <span class="leaf-val red">
-      {{ r.educationExpenses | number:'1.0-0' }} ₪
-    </span>
-  </div>
-
-  <div class="total-row" *ngIf="r.educationParticipation > 0">
-    <span>השתתפות</span>
-    <span class="leaf-val green">
-      -{{ r.educationParticipation | number:'1.0-0' }} ₪
-    </span>
-  </div>
-
+  <!-- נשאר רק הסיכום הסופי -->
   <div class="total-row bold">
     <span>הוצאות חינוך בפועל</span>
     <span class="leaf-val">
-      {{ (r.educationExpenses - r.educationParticipation) | number:'1.0-0' }} ₪
+      {{ r.educationNet | number:'1.0-0' }} ₪
     </span>
   </div>
 
