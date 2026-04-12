@@ -91,13 +91,31 @@ export class SimulatorService {
   }
 
   private calcHealth(f: any): number {
-    return (
+    
+    const total =
       Number(f.inputs?.health_total ?? 0)   * Number(f.rules?.health_total ?? 0) +
       Number(f.inputs?.health_0_50 ?? 0)    * Number(f.rules?.health_0_50 ?? 0) +
       Number(f.inputs?.health_50_70 ?? 0)   * Number(f.rules?.health_50_70 ?? 0) +
-      Number(f.inputs?.health_70_plus ?? 0) * Number(f.rules?.health_70_plus ?? 0)
-    );
+      Number(f.inputs?.health_70_plus ?? 0) * Number(f.rules?.health_70_plus ?? 0);
+
+    // 🔥 בדיוק כמו ב-HTML שלך
+    //const participation = Math.abs(Number(f.inputs?.health_participation ?? 0));
+    //const participation = 0;//this.calcHealthParticipation(f,netSalaryParents)
+
+    return total;
   }
+
+  private calcHealthParticipation(f: any, healthCost: number, netSalary: number): number {
+
+    const cashIncome = Math.round(this.calcCashIncome(netSalary, f));
+
+    const rate = Number(f.rules?.F19 ?? 0);
+    const cap = Math.round(cashIncome * rate);
+
+    const result = healthCost > cap ? cap - healthCost : 0;
+
+  return result;
+}
 
   private calcTaka(f: any, netSalary: number): number {
     const inputs = f.inputs || {};
@@ -121,33 +139,6 @@ export class SimulatorService {
 
     return 0; 
   }
-
-  private calcTaka_old(f: any, netSalary: number): number {
-      const rules = f.rules || {};
-      const inputs = f.inputs || {};
-
-      const allowances = Number(inputs.child_allowance || 0);
-
-      // 🔥 לפי אקסל — רק נטו + קצבאות ילדים
-      const incomeForStandard =
-        netSalary +
-        allowances;
-
-      const incomeSum =
-        netSalary +
-        allowances;
-
-      const takaBase = Number(rules.F21 || 0);
-      const familyStandard = parseFloat(f.family_standard ?? f.familyStandard ?? '0');
-
-      if (incomeForStandard < takaBase * familyStandard) {
-        const taka = (takaBase * familyStandard) - incomeSum;
-
-        return taka;
-      }
-
-      return 0;
-    }
 
   private calcCashIncome(netSalaryParents: number, f: any): number {
 
@@ -180,144 +171,150 @@ export class SimulatorService {
   }
 
   result = computed(() => {
-  const f = this.familyState();
-  const p = this.paramsState();
+    const f = this.familyState();
+    const p = this.paramsState();
 
-  if (!f || !p) return null;
+    if (!f || !p) return null;
 
-  const netSalaryParents = this.netSalaryParents();
-  const updatedNetSalary = f.updatedNetSalary ?? netSalaryParents;
-  
-  const taka = this.calcTaka(f, updatedNetSalary);
+    const netSalaryParents = this.netSalaryParents();
+    const updatedNetSalary = f.updatedNetSalary ?? netSalaryParents;
+    
+    const taka = this.calcTaka(f, updatedNetSalary);
 
-  const mutualResponsibility = this.calcMutualResponsibility(
-    updatedNetSalary,
-    Number(f.pension ?? 0),
-    f.rules
-  );
+    const mutualResponsibility = this.calcMutualResponsibility(
+      updatedNetSalary,
+      Number(f.pension ?? 0),
+      f.rules
+    );
 
-  const childAllowances = Number(f.inputs?.child_allowance ?? 0);
+    const childAllowances = Number(f.inputs?.child_allowance ?? 0);
 
-  const totalIncome =
-    updatedNetSalary +
-    Number(f.inputs?.pension ?? 0) +
-    Number(f.inputs?.survivors ?? 0) +
-    Number(f.inputs?.old_age_allowance ?? 0) +
-    Number(f.inputs?.child_allowance ?? 0) +
-    taka;
+    const totalIncome =
+      updatedNetSalary +
+      Number(f.inputs?.pension ?? 0) +
+      Number(f.inputs?.survivors ?? 0) +
+      Number(f.inputs?.old_age_allowance ?? 0) +
+      Number(f.inputs?.child_allowance ?? 0) +
+      taka;
 
-  const educationExpensesRaw = this.calcEducation(f);
-  const healthExpenses = this.familyService.round(this.calcHealth(f));
+    const educationExpensesRaw = this.calcEducation(f);
+    //const healthExpenses = this.familyService.round(this.calcHealth(f,netSalaryParents));
 
-  const cashIncome = this.calcCashIncome(netSalaryParents, f);
+    const healthCost = this.calcHealth(f);
+    const healthParticipation = this.calcHealthParticipation(f,healthCost, updatedNetSalary);
+    const healthExpenses = this.familyService.round(
+      healthCost + healthParticipation
+    );
 
-  const educationParticipation = this.calcEducationParticipation(
-    educationExpensesRaw,
-    cashIncome,
-    f
-  );
+    const cashIncome = this.calcCashIncome(updatedNetSalary, f);
 
-  const educationExpenses = Math.round(educationExpensesRaw);
-  const educationNet = educationExpenses - educationParticipation;
+    const educationParticipation = this.calcEducationParticipation(
+      educationExpensesRaw,
+      cashIncome,
+      f
+    );
 
-  const balanceTax = netSalaryParents * (p.balanceTaxRate ?? 0);
+    const educationExpenses = Math.round(educationExpensesRaw);
+    const educationNet = educationExpenses - educationParticipation;
 
-  const taxes =
-    Number(f.mutual_responsibility_cap ?? 0) +
-    Number(f.community_tax ?? 0) +
-    Number(f.municipal_tax ?? 0) +
-    Number(f.arnona ?? 0);
+    const balanceTax = netSalaryParents * (p.balanceTaxRate ?? 0);
 
-  const totalExpenses =
-    educationNet +
-    healthExpenses +
-    taxes;
+    const taxes =
+      Number(f.mutual_responsibility_cap ?? 0) +
+      Number(f.community_tax ?? 0) +
+      Number(f.municipal_tax ?? 0) +
+      Number(f.arnona ?? 0);
 
-  const hishtalmutFund = Number(f.hishtalmut_fund ?? 0);
-  const pensionContribution = Number(f.pension_contribution ?? 0);
-  const totalSavings = hishtalmutFund + pensionContribution;
+    const totalExpenses =
+      educationNet +
+      healthExpenses +
+      taxes;
 
-  const netDisposableIncome = totalIncome - totalExpenses - totalSavings;
+    const hishtalmutFund = Number(f.hishtalmut_fund ?? 0);
+    const pensionContribution = Number(f.pension_contribution ?? 0);
+    const totalSavings = hishtalmutFund + pensionContribution;
 
-  // 🔴 FIX — חישוב במקום שימוש בשדה שלא קיים
-  const sim = f.simulation ?? {};
+    const netDisposableIncome = totalIncome - totalExpenses - totalSavings;
 
-const currentState =
-  Number(sim.budget_distribution ?? 0) +
-  Number(sim.personal_bonus ?? 0) +
-  Number(sim.women_work_benefit ?? 0) +
-  Number(sim.travel ?? 0) +
-  Number(sim.periodic_grant ?? 0) +
-  Number(sim.special_help ?? 0);
+    // 🔴 FIX — חישוב במקום שימוש בשדה שלא קיים
+    const sim = f.simulation ?? {};
 
-  // ===== NEW MODEL =====
+    const currentState =
+      Number(sim.budget_distribution ?? 0) +
+      Number(sim.personal_bonus ?? 0) +
+      Number(sim.women_work_benefit ?? 0) +
+      Number(sim.travel ?? 0) +
+      Number(sim.periodic_grant ?? 0) +
+      Number(sim.special_help ?? 0);
 
-  const newIncome =
-    updatedNetSalary +
-    Number(f.inputs?.pension ?? 0) +
-    Number(f.inputs?.survivors ?? 0) +
-    Number(f.inputs?.old_age_allowance ?? 0) +
-    Number(f.inputs?.child_allowance ?? 0) +
-    this.calcTaka(f, updatedNetSalary);
+      // ===== NEW MODEL =====
 
-  const newExpenses =
-    educationNet +
-    healthExpenses +
-    taxes;
+    const newIncome =
+      updatedNetSalary +
+      Number(f.inputs?.pension ?? 0) +
+      Number(f.inputs?.survivors ?? 0) +
+      Number(f.inputs?.old_age_allowance ?? 0) +
+      Number(f.inputs?.child_allowance ?? 0) +
+      this.calcTaka(f, updatedNetSalary);
 
-  const currentStateBreakdown = currentState; // 🔴 FIX (איחוד)
+    const newExpenses =
+      educationNet +
+      healthExpenses +
+      taxes;
 
-  const disposableIncome = newIncome - newExpenses;
-  const cashFlowDiff = disposableIncome - currentState;
+    const currentStateBreakdown = currentState; // 🔴 FIX (איחוד)
 
-  const economicDiff = cashFlowDiff + totalSavings;
+    const disposableIncome = newIncome - newExpenses;
+    const cashFlowDiff = disposableIncome - currentState;
 
-  console.log('currentState:', currentState);
+    const economicDiff = cashFlowDiff + totalSavings;
 
-  return {
-    currentState, // 👈 חשוף לכל המערכת
+    console.log('currentState:', currentState);
 
-    totalIncome,
-    netSalary: netSalaryParents,
-    updatedNetSalary,
+    return {
+      currentState, // 👈 חשוף לכל המערכת
 
-    educationExpenses,
-    educationParticipation,
-    educationNet,
+      totalIncome,
+      netSalary: netSalaryParents,
+      updatedNetSalary,
 
-    healthExpenses,
+      educationExpenses,
+      educationParticipation,
+      educationNet,
 
-    taxes,
-    balanceTax,
+      healthExpenses,
+      healthParticipation,
+      taxes,
+      balanceTax,
 
-    communityTax: f.community_tax ?? 0,
-    municipalTax: f.municipal_tax ?? 0,
-    mutualResponsibility: f.mutual_responsibility_cap  ?? 0,
-    arnona: f.arnona ?? 0,
+      communityTax: f.community_tax ?? 0,
+      municipalTax: f.municipal_tax ?? 0,
+      mutualResponsibility: f.mutual_responsibility_cap  ?? 0,
+      arnona: f.arnona ?? 0,
 
-    totalExpenses,
+      totalExpenses,
 
-    hishtalmutFund,
-    pensionContribution,
-    totalSavings,
+      hishtalmutFund,
+      pensionContribution,
+      totalSavings,
 
-    netDisposableIncome,
+      netDisposableIncome,
 
-    diff: currentState - netDisposableIncome,
+      diff: currentState - netDisposableIncome,
 
-    childAllowances,
-    pensionAddition: Number(f.inputs?.pension ?? 0),
-    survivorPension: Number(f.inputs?.survivors ?? 0),
-    oldAgePension: Number(f.inputs?.old_age_allowance ?? 0),
-    taka,
+      childAllowances,
+      pensionAddition: Number(f.inputs?.pension ?? 0),
+      survivorPension: Number(f.inputs?.survivors ?? 0),
+      oldAgePension: Number(f.inputs?.old_age_allowance ?? 0),
+      taka,
 
-    newIncome,
-    newExpenses,
-    currentStateBreakdown,
-    cashFlowDiff,
-    economicDiff
-  };
-});
+      newIncome,
+      newExpenses,
+      currentStateBreakdown,
+      cashFlowDiff,
+      economicDiff
+    };
+  });
 
   updateExpectedSalary(memberId: string, value: number) {
     const f = this.family();

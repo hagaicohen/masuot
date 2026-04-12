@@ -148,7 +148,8 @@ function normalizeRules(rows: any) {
     M6: Number(r.m6 ?? 0),
 
     F16: Number(r.f16 ?? 0),
-    F21: Number(r.f21 ?? 0)
+    F21: Number(r.f21 ?? 0),
+    F19: Number(r.f19 ?? 0),
   };
 }
 

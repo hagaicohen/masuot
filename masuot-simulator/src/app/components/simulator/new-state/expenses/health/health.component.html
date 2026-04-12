@@ -61,9 +61,9 @@
 
             <!-- 🔥 ADDED style -->
             <td class="total green" style="text-align: left;">
-              <span class="num">
-                {{ -(family()?.inputs?.health_participation || 0) | number:'1.0-0' }}
-              </span>&nbsp;₪
+             <span class="num">
+              {{ r.healthParticipation | number:'1.0-0' }}
+            </span>&nbsp;₪
             </td>
           </tr>
         </tbody>
@@ -76,7 +76,7 @@
     <div class="total-row">
       <span>סה"כ הוצאות בריאות</span>
       <span class="leaf-val red">
-        {{ (r.healthExpenses - Math.abs(family()?.inputs?.health_participation || 0)) | number:'1.0-0' }} ₪
+        {{ r.healthExpenses | number:'1.0-0' }} ₪
       </span>
     </div>
 
