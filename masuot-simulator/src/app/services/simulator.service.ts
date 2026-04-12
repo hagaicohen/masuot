@@ -163,12 +163,28 @@ private calcMutualResponsibility(updatedNetSalary: number, pension: number, rule
   private calcEducationParticipation(educationExpensesRaw: number, cashIncome: number, f: any): number {
     const educationExpenses = Math.round(educationExpensesRaw);
 
-    const rate = Number(f.rules?.F16 ?? 0);
+    // 🔴 FIX — תמיכה גם ב-uppercase וגם lowercase
+    const rate = Number(f.rules?.F16 ?? f.rules?.f16 ?? 0);
+
     const maxAllowed = Math.round(cashIncome * rate);
 
-    return educationExpenses > maxAllowed
-      ? educationExpenses - maxAllowed
-      : 0;
+    // 🔴 FIX — נוסחת אקסל (הפוך מהקיים!)
+    const participation =
+      educationExpenses > maxAllowed
+        ? maxAllowed - educationExpenses   // 🔴 FIX — מחזיר שלילי
+        : 0;
+
+    // 🔍 DEBUG — לראות בדיוק מה קורה
+    console.log('=== EDUCATION DEBUG ===', {
+      educationExpensesRaw,
+      educationExpenses,
+      cashIncome,
+      rate,
+      maxAllowed,
+      participation
+    });
+
+    return participation;
   }
 
   result = computed(() => {
@@ -225,7 +241,7 @@ private calcMutualResponsibility(updatedNetSalary: number, pension: number, rule
     );
 
     const educationExpenses = Math.round(educationExpensesRaw);
-    const educationNet = educationExpenses - educationParticipation;
+    const educationNet = educationExpenses + educationParticipation;
 
     const balanceTax = netSalaryParents * (p.balanceTaxRate ?? 0);
 
