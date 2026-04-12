@@ -57,28 +57,29 @@ export class SimulatorService {
   inputs = computed(() => this.familyState()?.inputs ?? null);
   rules  = computed(() => this.familyState()?.rules ?? null);
 
-  private calcMutualResponsibility(updatedNetSalary: number, pension: number, rules: any): number {
-    const income = updatedNetSalary + pension;
+  // ✅ FIX — רק זה משתנה
+private calcMutualResponsibility(updatedNetSalary: number, pension: number, rules: any): number {
+  const income = Number(updatedNetSalary || 0) + Number(pension || 0);
 
-    const K5 = Number(rules?.K5 ?? 0);
-    const L5 = Number(rules?.L5 ?? 0);
+  const k5 = Number(rules?.k5 ?? rules?.K5 ?? 0);
+  const l5 = Number(rules?.l5 ?? rules?.L5 ?? 0);
 
-    const K6 = Number(rules?.K6 ?? 0);
-    const J6 = Number(rules?.J6 ?? 0);
-    const L6 = Number(rules?.L6 ?? 0);
-    const M5 = Number(rules?.M5 ?? 0);
+  const k6 = Number(rules?.k6 ?? rules?.K6 ?? 0);
+  const j6 = Number(rules?.j6 ?? rules?.J6 ?? 0);
+  const l6 = Number(rules?.l6 ?? rules?.L6 ?? 0);
+  const m5 = Number(rules?.m5 ?? rules?.M5 ?? 0);
 
-    const K7 = Number(rules?.K7 ?? 0);
-    const J7 = Number(rules?.J7 ?? 0);
-    const L7 = Number(rules?.L7 ?? 0);
-    const M6 = Number(rules?.M6 ?? 0);
+  const k7 = Number(rules?.k7 ?? rules?.K7 ?? 0);
+  const j7 = Number(rules?.j7 ?? rules?.J7 ?? 0);
+  const l7 = Number(rules?.l7 ?? rules?.L7 ?? 0);
+  const m6 = Number(rules?.m6 ?? rules?.M6 ?? 0);
 
-    if (income <= K5) return income * L5;
-    if (income <= K6) return M5 + (income - J6) * L6;
-    if (income <= K7) return M6 + (income - J7) * L7;
+  if (income <= k5) return income * l5;
+  if (income <= k6) return m5 + (income - j6) * l6;
+  if (income <= k7) return m6 + (income - j7) * l7;
 
-    return 0;
-  }
+  return 0;
+}
 
   private calcEducation(f: any): number {
     return (
@@ -187,6 +188,15 @@ export class SimulatorService {
       f.rules
     );
 
+    // 🔴 FIX — תקרת מס ערבות מגיעה מ-rules (F4) ולא מה-family
+    const mutualCap = Number(f.rules?.f4 ?? Infinity);
+
+    // ✅ NEW — מס ערבות אחרי הגבלה (כמו באקסל: MIN)
+    const mutualResponsibilityCapped = Math.min(
+      mutualResponsibility,
+      mutualCap
+    );
+
     const childAllowances = Number(f.inputs?.child_allowance ?? 0);
 
     const totalIncome =
@@ -219,8 +229,9 @@ export class SimulatorService {
 
     const balanceTax = netSalaryParents * (p.balanceTaxRate ?? 0);
 
+    // 🔴 FIX — שימוש במס ערבות מחושב ומוגבל במקום ערך קשיח מה-DB
     const taxes =
-      Number(f.mutual_responsibility_cap ?? 0) +
+      mutualResponsibilityCapped +
       Number(f.community_tax ?? 0) +
       Number(f.municipal_tax ?? 0) +
       Number(f.arnona ?? 0);
@@ -289,7 +300,9 @@ export class SimulatorService {
 
       communityTax: f.community_tax ?? 0,
       municipalTax: f.municipal_tax ?? 0,
-      mutualResponsibility: f.mutual_responsibility_cap  ?? 0,
+      // 🔴 FIX — להחזיר ערכים מחושבים ולא מה-DB
+      mutualResponsibility,
+      mutualResponsibilityCapped,
       arnona: f.arnona ?? 0,
 
       totalExpenses,

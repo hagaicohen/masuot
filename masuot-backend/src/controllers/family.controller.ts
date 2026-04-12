@@ -150,6 +150,7 @@ function normalizeRules(rows: any) {
     F16: Number(r.f16 ?? 0),
     F21: Number(r.f21 ?? 0),
     F19: Number(r.f19 ?? 0),
+    F4: Number(r.f4 ?? 0)
   };
 }
 

@@ -277,7 +277,7 @@ def main():
         K5 NUMERIC, L5 NUMERIC,
         K6 NUMERIC, J6 NUMERIC, L6 NUMERIC, M5 NUMERIC,
         K7 NUMERIC, J7 NUMERIC, L7 NUMERIC, M6 NUMERIC,
-        F16 NUMERIC, F21 NUMERIC,F19 NUMERIC
+        F16 NUMERIC, F21 NUMERIC,F19 NUMERIC, F4 NUMERIC
 
     )
     """)
@@ -289,7 +289,7 @@ def main():
                              %s, %s, %s, %s,
                              %s, %s, %s, %s, %s, %s,
                              %s, %s, %s, %s,
-                             %s, %s,%s
+                             %s, %s,%s,%s
                              )
     """, (
         "default",
@@ -318,7 +318,8 @@ def main():
 
         to_num(discount_sheet.cell(row=16, column=6).value),
         to_num(discount_sheet.cell(row=21, column=6).value),
-        to_num(discount_sheet.cell(row=19, column=6).value)
+        to_num(discount_sheet.cell(row=19, column=6).value),
+        to_num(discount_sheet.cell(row=4, column=6).value),
     ))
 
     conn.commit()
