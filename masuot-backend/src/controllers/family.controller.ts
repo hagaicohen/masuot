@@ -15,7 +15,9 @@ async function getMembers(budget_code: string) {
       first_name,
       last_name,
       age,
-      net_salary
+      net_salary, 
+      status_code,
+      education_group
     FROM members
     WHERE budget_code::text = $1
     ORDER BY first_name, last_name
@@ -25,7 +27,9 @@ async function getMembers(budget_code: string) {
     first_name: (m.first_name || '').replace(/\s+/g, ' ').trim(),
     last_name: (m.last_name || '').replace(/\s+/g, ' ').trim(),
     age: Number(m.age || 0),
-    net_salary: Number(m.net_salary || 0)
+    net_salary: Number(m.net_salary || 0),
+    status_code: Number(m.status_code || 0),
+    education_group:(m.education_group  || '').replace(/\s+/g, ' ').trim(),
   }));
 }
 

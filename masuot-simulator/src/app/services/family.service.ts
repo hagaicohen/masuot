@@ -36,7 +36,9 @@ export class FamilyService {
         age: Number(m.age),
         status: 'employed',
         currentSalary: Number(m.net_salary || 0),
-        expectedSalary: Math.round(Number(m.net_salary || 0))
+        expectedSalary: Math.round(Number(m.net_salary || 0)),
+        statusCode:Math.round(Number(m.status_code || 0)),
+         educationGroup: m.education_group
       }));
 
       const children: Child[] = this.mapChildren(members);
@@ -149,28 +151,28 @@ export class FamilyService {
   }
 
   private mapChildren(rawMembers: FamilyMember[]): Child[] {
-    return rawMembers
-      .filter(m => (m.age ?? 0) <= 18)
-      .map((m, index) => {
-        const age = m.age ?? 0;
+  return rawMembers
+    .filter(m => (m.age ?? 0) <= 18)
+    .map((m, index) => {
+      return {
+        id: `${index}`,
+        name: m.name,
+        gender: 'male',
+        age: m.age ?? 0,
+        educationGroup: m.educationGroup // 🔥 זה הקשר
+      };
+    });
+}
 
-        return {
-          id: `${index}`,
-          name: m.name,
-          gender: 'male',
-          age,
-          educationLevel: this.getEducationLevel(age)
-        };
-      });
-  }
-
-  private getEducationLevel(age: number): Child['educationLevel'] {
+  /*private getEducationLevel(age: number): Child['educationLevel'] {
     if (age <= 3) return 'daycare';
     if (age <= 6) return 'kindergarten';
     if (age <= 12) return 'elementary';
     if (age <= 14) return 'middle';
+    if (age > 18) return 'aboveSchool';
+        
     return 'high';
-  }
+  }*/
 
   private clean(value: string | undefined): string {
     if (!value) return '';

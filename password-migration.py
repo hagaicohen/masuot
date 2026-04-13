@@ -31,6 +31,28 @@ def main():
     conn = connect()
     cur = conn.cursor()
 
+    # 🔥 DROP
+    cur.execute("DROP TABLE IF EXISTS users CASCADE")
+
+    # 🔥 CREATE
+    cur.execute("""
+    CREATE TABLE users (
+        id SERIAL PRIMARY KEY,
+        budget_code TEXT UNIQUE,
+        description TEXT,
+        password_hash TEXT,
+        role TEXT,
+        last_login TIMESTAMP,
+        created_at TIMESTAMP,
+        updated_at TIMESTAMP
+    )
+    """)
+
+    # 🔥 INDEXES
+    cur.execute("CREATE UNIQUE INDEX idx_users_budget_code ON users(budget_code)")
+    cur.execute("CREATE INDEX idx_users_role ON users(role)")
+    cur.execute("CREATE INDEX idx_users_last_login ON users(last_login)")
+
     wb = load_workbook(EXCEL_PATH, data_only=True)
     sheet = wb["סיסמאות"]
 

@@ -74,10 +74,87 @@ def main():
 
     ensure_column_exists(cur)
 
-    print("Cleaning tables...")
-    cur.execute("TRUNCATE TABLE members RESTART IDENTITY CASCADE")
-    cur.execute("TRUNCATE TABLE families CASCADE")
-    cur.execute("TRUNCATE TABLE rules CASCADE")
+    print("Reset DB...")
+
+    cur.execute("DROP TABLE IF EXISTS salary_income CASCADE")
+    cur.execute("DROP TABLE IF EXISTS members CASCADE")
+    cur.execute("DROP TABLE IF EXISTS families CASCADE")
+    cur.execute("DROP TABLE IF EXISTS rules CASCADE")
+
+    print("Create tables...")
+
+    cur.execute("""
+    CREATE TABLE families (
+        budget_code TEXT PRIMARY KEY,
+        family_name TEXT,
+        family_standard NUMERIC,
+        income_for_standard NUMERIC,
+        budget_distribution NUMERIC,
+        personal_bonus NUMERIC,
+        women_work_benefit NUMERIC,
+        travel NUMERIC,
+        periodic_grant NUMERIC,
+        special_help NUMERIC,
+        current_state NUMERIC,
+        pension NUMERIC,
+        survivors NUMERIC,
+        old_age_allowance NUMERIC,
+        child_allowance NUMERIC,
+        community_tax NUMERIC,
+        municipal_tax NUMERIC,
+        arnona NUMERIC,
+        health_total NUMERIC,
+        health_0_50 NUMERIC,
+        health_50_70 NUMERIC,
+        health_70_plus NUMERIC,
+        toddlers NUMERIC,
+        kindergarten NUMERIC,
+        elementary NUMERIC,
+        middle NUMERIC,
+        high NUMERIC,
+        health_participation NUMERIC,
+        mutual_responsibility_cap NUMERIC,
+        hishtalmut_fund NUMERIC,
+        pension_contribution NUMERIC
+    )
+    """)
+
+    cur.execute("""
+    CREATE TABLE members (
+        id SERIAL PRIMARY KEY,
+        budget_code TEXT,
+        member_code TEXT,
+        first_name TEXT,
+        last_name TEXT,
+        age NUMERIC,
+        net_salary NUMERIC,
+        status_code NUMERIC,
+        education_group TEXT        
+    )
+    """)
+
+    cur.execute("""
+    CREATE TABLE salary_income (
+        id SERIAL PRIMARY KEY,
+        budget_code TEXT,
+        member_code TEXT,
+        amount NUMERIC
+    )
+    """)
+
+    # MEMBERS
+    cur.execute("CREATE INDEX idx_members_budget_code ON members(budget_code)")
+    cur.execute("CREATE INDEX idx_members_member_code ON members(member_code)")
+
+    # SALARY
+    cur.execute("CREATE INDEX idx_salary_budget_code ON salary_income(budget_code)")
+    cur.execute("CREATE INDEX idx_salary_member_code ON salary_income(member_code)")
+
+    # 🔥 חשוב לביצועים (JOIN)
+    cur.execute("""
+    CREATE INDEX idx_salary_budget_member 
+    ON salary_income(budget_code, member_code)
+    """)
 
     savings_map = {}
     for row in salary_sheet.iter_rows(min_row=9):
@@ -99,7 +176,7 @@ def main():
 
     families_data = []
 
-    for row in summary.iter_rows(min_row=2):
+    for row in summary.iter_rows(min_row=5):
         code = row[0].value
         name = row[1].value
 
@@ -218,12 +295,14 @@ def main():
 
     members_data = []
 
-    for row in members_sheet.iter_rows(min_row=2):
+    for row in members_sheet.iter_rows(min_row=6):
         code = row[7].value
         member_code = norm_id(row[0].value)
         first_name = row[1].value
         last_name = row[2].value
         age = to_num(row[6].value)
+        status_code = to_num(row[15].value)
+        education_group = row[20].value
 
         if not is_valid(code) or not is_valid(member_code):
             continue
@@ -239,7 +318,9 @@ def main():
             first_name,
             last_name,
             age,
-            net_salary
+            net_salary,
+            status_code,
+            education_group
         ))
 
     execute_values(cur, """
@@ -249,7 +330,9 @@ def main():
             first_name,
             last_name,
             age,
-            net_salary
+            net_salary,
+            status_code,
+            education_group
         ) VALUES %s
     """, members_data)
 

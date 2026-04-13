@@ -12,11 +12,11 @@
       </thead>
 
       <tbody>
-        <tr *ngFor="let c of family()?.children; let i = index">
+        <tr *ngFor="let c of childrenSorted; let i = index">
           <td>{{ i + 1 }}</td>
           <td>{{ c.name }}</td>
           <td>{{ c.age }}</td>
-          <td>{{ eduLabel(c.educationLevel) }}</td>
+          <td>{{ c.educationGroup }}</td>
         </tr>
       </tbody>
     </table>

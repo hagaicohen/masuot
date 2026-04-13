@@ -5,6 +5,8 @@ export interface FamilyMember {
   status: 'employed' | 'retired' | 'unemployed';
   currentSalary: number;
   expectedSalary: number;
+  statusCode:number;
+  educationGroup:string;
 }
 
 export interface Child {
@@ -12,7 +14,7 @@ export interface Child {
   name: string;
   gender: 'male' | 'female';
   age: number;
-  educationLevel: 'daycare' | 'kindergarten' | 'elementary' | 'middle' | 'high';
+  educationGroup:string;
 }
 
 // 🔥 טיפוס חדש ל-inputs (מינימלי כדי שיעבוד)
