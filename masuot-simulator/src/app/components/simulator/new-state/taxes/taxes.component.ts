@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SimulatorService } from '../../../../../services/simulator.service';
-import { AccordionPanelComponent } from '../../../../shared/accordion-panel/accordion-panel.component';
-import { FamilyService } from '../../../../../services/family.service';
+import { SimulatorService } from '../../../../services/simulator.service';
+import { AccordionPanelComponent } from '../../../shared/accordion-panel/accordion-panel.component';
+import { FamilyService } from '../../../../services/family.service';
 
 @Component({
   selector: 'app-taxes',

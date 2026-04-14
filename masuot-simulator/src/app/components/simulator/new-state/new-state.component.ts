@@ -6,8 +6,9 @@ import { IncomeComponent } from './income/income.component';
 import { ExpensesComponent } from './expenses/expenses.component';
 import { FamilyService } from '../../../services/family.service';
 import { SavingsComponent } from "./savings/savings.component";
+import { TaxesComponent } from "./taxes/taxes.component";
 
-@Component({ selector: 'app-new-state', standalone: true, imports: [CommonModule, AccordionPanelComponent, IncomeComponent, ExpensesComponent, SavingsComponent], templateUrl: './new-state.component.html' })
+@Component({ selector: 'app-new-state', standalone: true, imports: [CommonModule, AccordionPanelComponent, IncomeComponent, ExpensesComponent, SavingsComponent, TaxesComponent], templateUrl: './new-state.component.html' })
 export class NewStateComponent {
 
   constructor(private familyService: FamilyService) {}

@@ -257,6 +257,10 @@ private calcMutualResponsibility(updatedNetSalary: number, pension: number, rule
       healthExpenses +
       taxes;
 
+    const expensesWithoutTaxes =
+      educationNet +
+      healthExpenses;
+
     const hishtalmutFund = Number(f.hishtalmut_fund ?? 0);
     const pensionContribution = Number(f.pension_contribution ?? 0);
     const totalSavings = hishtalmutFund + pensionContribution;
@@ -322,6 +326,7 @@ private calcMutualResponsibility(updatedNetSalary: number, pension: number, rule
       arnona: f.arnona ?? 0,
 
       totalExpenses,
+      expensesWithoutTaxes,
 
       hishtalmutFund,
       pensionContribution,

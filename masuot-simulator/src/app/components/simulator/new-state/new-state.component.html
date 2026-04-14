@@ -1,17 +1,10 @@
 <app-accordion-panel title="מצב חדש" [badge]="badge" [level]="1">
 
   <app-income></app-income>
-
+  <app-taxes></app-taxes>
   <app-expenses></app-expenses>
 
   <!-- ✅ NEW: Savings -->
   <app-savings></app-savings>
-
-  <!--<div class="net-box" *ngIf="result()">
-    <span class="net-label">הכנסה פנויה נטו</span>
-    <span class="net-val">
-      {{ result()!.netDisposableIncome | number:'1.0-0' }} ₪
-    </span>
-  </div>-->
 
 </app-accordion-panel>
