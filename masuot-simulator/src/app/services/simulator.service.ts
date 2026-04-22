@@ -205,13 +205,20 @@ private calcMutualResponsibility(updatedNetSalary: number, pension: number, rule
     );
 
     // 🔴 FIX — תקרת מס ערבות מגיעה מ-rules (F4) ולא מה-family
-    const mutualCap = Number(f.rules?.f4 ?? Infinity);
+    const mutualCap = Number(f.rules?.F4 ?? Infinity);
 
     // ✅ NEW — מס ערבות אחרי הגבלה (כמו באקסל: MIN)
     const mutualResponsibilityCapped = Math.min(
       mutualResponsibility,
       mutualCap
     );
+
+    /*console.log('RULES KEYS:', Object.keys(f.rules || {}));
+    console.log('MUTUAL DEBUG', {
+      raw: mutualResponsibility,
+      cap: mutualCap,
+      capped: mutualResponsibilityCapped
+    });*/
 
     const childAllowances = Number(f.inputs?.child_allowance ?? 0);
 

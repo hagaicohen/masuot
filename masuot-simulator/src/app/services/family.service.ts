@@ -151,28 +151,19 @@ export class FamilyService {
   }
 
   private mapChildren(rawMembers: FamilyMember[]): Child[] {
-  return rawMembers
-    .filter(m => (m.age ?? 0) <= 18)
-    .map((m, index) => {
-      return {
-        id: `${index}`,
-        name: m.name,
-        gender: 'male',
-        age: m.age ?? 0,
-        educationGroup: m.educationGroup // 🔥 זה הקשר
-      };
-    });
-}
-
-  /*private getEducationLevel(age: number): Child['educationLevel'] {
-    if (age <= 3) return 'daycare';
-    if (age <= 6) return 'kindergarten';
-    if (age <= 12) return 'elementary';
-    if (age <= 14) return 'middle';
-    if (age > 18) return 'aboveSchool';
-        
-    return 'high';
-  }*/
+    return rawMembers
+      //.filter(m => (m.age ?? 0) <= 18)
+      .filter(m => m.statusCode != 1)
+      .map((m, index) => {
+        return {
+          id: `${index}`,
+          name: m.name,
+          gender: 'male',
+          age: m.age ?? 0,
+          educationGroup: m.educationGroup // 🔥 זה הקשר
+        };
+      });
+  }
 
   private clean(value: string | undefined): string {
     if (!value) return '';
