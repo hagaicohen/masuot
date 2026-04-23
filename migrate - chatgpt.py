@@ -134,6 +134,12 @@ def main():
     """)
 
     cur.execute("""
+    ALTER TABLE members
+    ADD CONSTRAINT uq_members_budget_member
+    UNIQUE (budget_code, member_code)
+    """)
+
+    cur.execute("""
     CREATE TABLE salary_income (
         id SERIAL PRIMARY KEY,
         budget_code TEXT,
