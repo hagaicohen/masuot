@@ -22,7 +22,7 @@ export class SummaryBarComponent {
   
   getCurrentState(){
 
-    if (!this.family()?.simulation) return '';
+    if (!this.family()?.simulation) return '0 ₪';
 
     // 🔥 עיגול
     const value = this.familyService.round(Number(this.family()?.simulation.current_state ?? 0));

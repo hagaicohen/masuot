@@ -1,8 +1,54 @@
 <app-header></app-header>
-<div class="main">
-  <app-base-family></app-base-family>
-  <app-current-state></app-current-state>
-  <app-new-state></app-new-state>
-  <app-diff></app-diff>
+<!---
+<div style="border:1px solid;height: 50px;margin-top: -14px;position: sticky;width:100%;position:sticky;top: 72px;background: transparent; z-index: 200;">
+  <button class="tab">תקציב שוטף</button>
+  <button class="tab">תקציבים מיוחדים</button>
+</div>-->
+
+<div class="tabs-container">
+
+  <div class="tabs-inner">
+
+   <button 
+    class="tab"
+    [class.active]="tab === 'current'"
+    (click)="tab = 'current'">
+    <span class="tab-content">
+      <span>תקציב שוטף</span>
+      <span class="icon">📊</span>
+    </span>
+  </button>
+
+  <button 
+    class="tab"
+    [class.active]="tab === 'special'"
+    (click)="tab = 'special'">
+    <span class="tab-content">
+      <span>תקציבים מיוחדים</span>
+      <span class="icon">⭐</span>
+    </span>
+  </button>
+
+  </div>
+
 </div>
+
+<div *ngIf="tab === 'current'">
+  <!-- תקציב שוטף -->
+   <div class="main" >
+    <app-base-family></app-base-family>
+    <app-current-state></app-current-state>
+    <app-new-state></app-new-state>
+    <app-diff></app-diff>
+  </div>
+</div>
+
+<div *ngIf="tab === 'special'">
+  <!-- תקציבים מיוחדים -->
+   <div class="main" >
+      <app-special-budgets></app-special-budgets>
+   </div>
+</div>
+
+
 <app-summary-bar></app-summary-bar>

@@ -1,0 +1,38 @@
+<ng-container>
+
+<app-accordion-panel 
+  title="בת מצווה"
+  [badge]="badge"
+  [level]="3">
+
+  <div class="inner-padded">
+
+    <table class="edu-table">
+
+      <thead>
+        <tr>
+          <th>שם</th>
+          <th>שנה</th>
+          <th class="total">סכום</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr *ngFor="let row of batMitzvah()">
+          <td>{{ row.name }}</td>
+          <td>{{ row.year }}</td>
+          <td class="total green">
+            {{ row.amount | number:'1.0-0' }} ₪
+          </td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</app-accordion-panel>
+
+</ng-container>

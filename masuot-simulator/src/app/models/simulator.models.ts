@@ -63,10 +63,11 @@ export interface FamilyData {
   inputs: any;
   simulation: any;
 
-  // 🔥 הוסף את זה
   rules: {
     [key: string]: number;
   };
+
+  specialBudgets?: SpecialBudget[];
 }
 
 export interface AdminParams {
@@ -110,4 +111,32 @@ export interface SimulationResult {
 
   netDisposableIncome: number;
   diff: number;
+}
+
+export interface SpecialBudget {
+  member_code: string;
+  first_name: string;
+  last_name: string;
+  age: number;
+
+  bar_mitzvah_amount: number;
+  bar_mitzvah_year: number;
+
+  bat_mitzvah_amount: number;
+  bat_mitzvah_year: number;
+
+  wedding_grant: number;
+  wedding_year: number;
+
+  study_grant: number;
+  study_year: number;
+
+  paint_grant: number;
+  paint_year: number;
+
+  leaving_grant_25y: number;
+  leaving_grant_25y_year: number;
+
+  leaving_grant_age_65: number;
+  leaving_grant_age_65_year: number;
 }

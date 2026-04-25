@@ -11,7 +11,8 @@
       </div>
 
       <div class="header-sub" *ngIf="family() as f">
-        משפחת {{ f.familyName!.replace('(', ')').replace(')', '(') }} · קוד תקציב {{ f.budgetCode }}
+        <div>משפחת {{ f.familyName!.replace('(', ')').replace(')', '(') }}</div>
+        <div>קוד תקציב {{ f.budgetCode }}</div>
       </div>
       <div class="header-sub" *ngIf="!family() as f">
         משפחת  · קוד תקציב 

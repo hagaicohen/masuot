@@ -12,11 +12,13 @@ def connect():
         user="postgres.jhkxyiiwtxtgqxovljkl",
         password="__Por@t2019!")
 
-def to_num(v):
+def to_num(val):
+    if val is None or val == '':
+        return 0
     try:
-        return float(v)
+        return float(val)
     except:
-        return None
+        return 0
 
 def is_valid(v):
     return v is not None and str(v).strip() != ""
@@ -63,6 +65,16 @@ def main():
         study_grant NUMERIC,
         study_year NUMERIC,
 
+        paint_grant NUMERIC,
+        paint_year NUMERIC,        
+                
+        leaving_grant_25y NUMERIC,
+        leaving_grant_25y_year NUMERIC,
+                
+        leaving_grant_age_65 NUMERIC,
+        leaving_grant_age_65_year NUMERIC,
+                                    
+
         PRIMARY KEY (budget_code, member_code)
     )
     """)
@@ -107,6 +119,15 @@ def main():
 
             to_num(row[33].value),  # AH
             to_num(row[34].value),  # AI
+
+            to_num(row[43].value),  # AR
+            to_num(row[44].value),  # AS
+
+            to_num(row[37].value),  # AL
+            to_num(row[38].value),  # AM
+
+            to_num(row[39].value),  # AN
+            to_num(row[40].value),  # AO
         ))
 
     execute_values(cur, """
@@ -124,7 +145,14 @@ def main():
             wedding_grant,
             wedding_year,
             study_grant,
-            study_year
+            study_year,
+            paint_grant,
+            paint_year,
+            leaving_grant_25y,
+            leaving_grant_25y_year, 
+            leaving_grant_age_65,
+            leaving_grant_age_65_year
+            
         ) VALUES %s
     """, data)
 

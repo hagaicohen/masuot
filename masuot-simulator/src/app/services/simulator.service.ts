@@ -57,6 +57,26 @@ export class SimulatorService {
   inputs = computed(() => this.familyState()?.inputs ?? null);
   rules  = computed(() => this.familyState()?.rules ?? null);
 
+  specialGrantsTotal = computed(() => {
+    const f = this.familyState();
+    if (!f) return 0;
+
+    const list = f.specialBudgets ?? [];
+
+    let sum = 0;
+
+    for (const x of list) {
+      sum +=
+        (x.bar_mitzvah_amount || 0) +
+        (x.bat_mitzvah_amount || 0) +
+        (x.wedding_grant || 0) +
+        (x.study_grant || 0) +
+        (x.paint_grant || 0);
+    }
+
+    return this.familyService.round(sum);
+  });
+
   // ✅ FIX — רק זה משתנה
 private calcMutualResponsibility(updatedNetSalary: number, pension: number, rules: any): number {
   const income = Number(updatedNetSalary || 0) + Number(pension || 0);
@@ -213,13 +233,6 @@ private calcMutualResponsibility(updatedNetSalary: number, pension: number, rule
       mutualCap
     );
 
-    /*console.log('RULES KEYS:', Object.keys(f.rules || {}));
-    console.log('MUTUAL DEBUG', {
-      raw: mutualResponsibility,
-      cap: mutualCap,
-      capped: mutualResponsibilityCapped
-    });*/
-
     const childAllowances = Number(f.inputs?.child_allowance ?? 0);
 
     const totalIncome =
@@ -231,7 +244,6 @@ private calcMutualResponsibility(updatedNetSalary: number, pension: number, rule
       taka;
 
     const educationExpensesRaw = this.calcEducation(f);
-    //const healthExpenses = this.familyService.round(this.calcHealth(f,netSalaryParents));
 
     const healthCost = this.calcHealth(f);
     const healthParticipation = this.calcHealthParticipation(f,healthCost, updatedNetSalary);

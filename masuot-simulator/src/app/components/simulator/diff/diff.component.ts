@@ -1,9 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SimulatorService } from '../../../services/simulator.service';
-import { AccordionPanelComponent } from '../../shared/accordion-panel/accordion-panel.component';
 
-@Component({ selector: 'app-diff', standalone: true, imports: [CommonModule, AccordionPanelComponent], templateUrl: './diff.component.html' })
+@Component({ selector: 'app-diff', standalone: true, imports: [CommonModule], templateUrl: './diff.component.html' })
 export class DiffComponent {
   result = inject(SimulatorService).result;
   get badge() {

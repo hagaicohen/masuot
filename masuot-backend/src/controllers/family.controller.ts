@@ -34,6 +34,66 @@ async function getMembers(budget_code: string) {
 }
 
 // =========================
+// SPECIAL BUDGET
+// =========================
+async function getSpecialBudgets(budget_code: string) {
+  const result = await pool.query(`
+    SELECT 
+      member_code,
+      first_name,
+      last_name,
+      birth_date,
+      age,
+      bar_mitzvah_amount,
+      bar_mitzvah_year,
+      bat_mitzvah_amount,
+      bat_mitzvah_year,
+      wedding_grant,
+      wedding_year,
+      study_grant,
+      study_year,
+      paint_grant,
+      paint_year,
+      leaving_grant_25y, 
+      leaving_grant_25y_year,
+      leaving_grant_age_65,
+      leaving_grant_age_65_year
+    FROM special_budgets
+    WHERE budget_code::text = $1
+  `, [budget_code]);
+
+  return result.rows.map(r => ({
+    member_code: r.member_code,
+    first_name: (r.first_name || '').trim(),
+    last_name: (r.last_name || '').trim(),
+    birth_date: r.birth_date,
+    age: Number(r.age || 0),
+
+    bar_mitzvah_amount: Number(r.bar_mitzvah_amount || 0),
+    bar_mitzvah_year: Number(r.bar_mitzvah_year || 0),
+
+    bat_mitzvah_amount: Number(r.bat_mitzvah_amount || 0),
+    bat_mitzvah_year: Number(r.bat_mitzvah_year || 0),
+
+    wedding_grant: Number(r.wedding_grant || 0),
+    wedding_year: Number(r.wedding_year || 0),
+
+    study_grant: Number(r.study_grant || 0),
+    study_year: Number(r.study_year || 0),
+
+    paint_grant: Number(r.paint_grant || 0),
+    paint_year: Number(r.paint_year || 0),
+
+    leaving_grant_25y: Number(r.leaving_grant_25y || 0),
+    leaving_grant_25y_year: Number(r.leaving_grant_25y_year || 0),
+
+    leaving_grant_age_65: Number(r.leaving_grant_age_65 || 0),
+    leaving_grant_age_65_year: Number(r.leaving_grant_age_65_year || 0),
+
+  }));
+}
+
+// =========================
 // NORMALIZE FAMILY
 // =========================
 function normalizeFamily(raw: any) {
@@ -170,7 +230,10 @@ async function buildResponse(budget_code: string) {
   if (!familyRes.rows.length) return null;
 
   const family = normalizeFamily(familyRes.rows[0]);
-  const members = await getMembers(budget_code);
+  const [members, specialBudgets] = await Promise.all([
+    getMembers(budget_code),
+    getSpecialBudgets(budget_code)
+  ]);
 
   return {
     family: {
@@ -179,6 +242,7 @@ async function buildResponse(budget_code: string) {
     },
     inputs: mapToInputs(family, members),
     members,
+    specialBudgets,
     rules: normalizeRules(rulesRes.rows)
   };
 }

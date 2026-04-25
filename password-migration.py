@@ -19,7 +19,16 @@ def connect():
 BATCH_SIZE = 100  # 🔥 יציב ל-Supabase
 
 def to_str(v):
-    return str(v).strip() if v else ""
+    if v is None:
+        return ""
+
+    s = str(v)
+
+    # 🔥 ניקוי אגרסיבי
+    s = s.replace('\n', '').replace('\r', '')
+    s = s.replace('\u200e', '').replace('\u200f', '')  # RTL marks
+
+    return s.strip()
 
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(
