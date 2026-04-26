@@ -139,4 +139,6 @@ export interface SpecialBudget {
 
   leaving_grant_age_65: number;
   leaving_grant_age_65_year: number;
+  
+  shares_amount: number;
 }

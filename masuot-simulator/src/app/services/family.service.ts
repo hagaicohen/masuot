@@ -180,33 +180,35 @@ export class FamilyService {
   private normalizeSpecialBudgets(data: any[]) {
   if (!data) return [];
 
-  return data.map(r => ({
-      member_code: r.member_code,
-      first_name: this.clean(r.first_name),
-      last_name: this.flipParentheses(this.clean(r.last_name)),
-      age: this.toNumber(r.age),
-      
-      bar_mitzvah_amount: this.toNumber(r.bar_mitzvah_amount),
-      bar_mitzvah_year: this.toNumber(r.bar_mitzvah_year),
+    return data.map(r => ({
+        member_code: r.member_code,
+        first_name: this.clean(r.first_name),
+        last_name: this.flipParentheses(this.clean(r.last_name)),
+        age: this.toNumber(r.age),
+        
+        bar_mitzvah_amount: this.toNumber(r.bar_mitzvah_amount),
+        bar_mitzvah_year: this.toNumber(r.bar_mitzvah_year),
 
-      bat_mitzvah_amount: this.toNumber(r.bat_mitzvah_amount),
-      bat_mitzvah_year: this.toNumber(r.bat_mitzvah_year),
+        bat_mitzvah_amount: this.toNumber(r.bat_mitzvah_amount),
+        bat_mitzvah_year: this.toNumber(r.bat_mitzvah_year),
 
-      wedding_grant: this.toNumber(r.wedding_grant),
-      wedding_year: this.toNumber(r.wedding_year),
+        wedding_grant: this.toNumber(r.wedding_grant),
+        wedding_year: this.toNumber(r.wedding_year),
 
-      study_grant: this.toNumber(r.study_grant),
-      study_year: this.toNumber(r.study_year),
+        study_grant: this.toNumber(r.study_grant),
+        study_year: this.toNumber(r.study_year),
 
-      paint_grant: this.toNumber(r.paint_grant),
-      paint_year: this.toNumber(r.paint_year),
+        paint_grant: this.toNumber(r.paint_grant),
+        paint_year: this.toNumber(r.paint_year),
 
-      leaving_grant_25y: this.toNumber(r.leaving_grant_25y),
-      leaving_grant_25y_year: this.toNumber(r.leaving_grant_25y_year),
+        leaving_grant_25y: this.toNumber(r.leaving_grant_25y),
+        leaving_grant_25y_year: this.toNumber(r.leaving_grant_25y_year),
 
-      leaving_grant_age_65: this.toNumber(r.leaving_grant_age_65),
-      leaving_grant_age_65_year: this.toNumber(r.leaving_grant_age_65_year),
-    }));
+        leaving_grant_age_65: this.toNumber(r.leaving_grant_age_65),
+        leaving_grant_age_65_year: this.toNumber(r.leaving_grant_age_65_year),
+
+        shares_amount: this.toNumber(r.shares_amount)
+      }));
   } 
 
   private clean(value: string | undefined): string {

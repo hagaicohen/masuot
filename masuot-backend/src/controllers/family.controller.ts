@@ -57,7 +57,8 @@ async function getSpecialBudgets(budget_code: string) {
       leaving_grant_25y, 
       leaving_grant_25y_year,
       leaving_grant_age_65,
-      leaving_grant_age_65_year
+      leaving_grant_age_65_year,
+      shares_amount
     FROM special_budgets
     WHERE budget_code::text = $1
   `, [budget_code]);

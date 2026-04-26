@@ -2,34 +2,29 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { FamilyService } from '../../../services/family.service';
 import { AccordionPanelComponent } from '../../../components/shared/accordion-panel/accordion-panel.component';
-import { SpecialBudget } from '../../../models/simulator.models';
 
 @Component({
   selector: 'app-house-building',
   standalone: true,
-  imports: [CommonModule,AccordionPanelComponent],
+  imports: [CommonModule, AccordionPanelComponent],
   templateUrl: './house-building.component.html',
   styleUrl: './house-building.component.css'
 })
 export class HouseBuildingComponent {
+
   private familyService = inject(FamilyService);
 
-  total = computed(() =>
-    this.paintGrant().reduce((s, x) => s + x.amount, 0)
-  );
-
-  paintGrant = computed(() => {
+  // 🔥 סכום כולל של צביעה לכל המשפחה
+  total = computed(() => {
     const f = this.familyService.family();
-    if (!f) return [];
+    if (!f) return 0;
 
-    return (f.specialBudgets ?? [])
-      .filter((x: SpecialBudget) => x.paint_grant > 0)
-      .map((x: SpecialBudget) => ({
-        name: `${x.first_name} ${x.last_name}`,
-        amount: x.paint_grant,
-        year: x.paint_year,
-      }))
-      .sort((a, b) => a.year - b.year);
+    const list = f.specialBudgets ?? [];
+
+    return list.reduce(
+      (sum, x) => sum + (x.paint_grant || 0),
+      0
+    );
   });
 
   private formatMoney(value: number): string {

@@ -1,9 +1,9 @@
 <ng-container>
 
 <app-accordion-panel 
-  title="צביעה"
+  title="תחזוקת בית"
   [badge]="badge"
-  [level]="3">
+  [level]="2">
 
   <div class="inner-padded">
 
@@ -11,19 +11,17 @@
 
       <thead>
         <tr>
-          <th>שם</th>
-          <th>שנה</th>
-          <th class="total">סכום</th>
+          <th>סוג</th>
+          <th class="total">סה״כ</th>
         </tr>
       </thead>
 
       <tbody>
 
-        <tr *ngFor="let row of paintGrant()">
-          <td>{{ row.name }}</td>
-          <td>{{ row.year }}</td>
+        <tr>
+          <td>צביעה</td>
           <td class="total green">
-            {{ row.amount | number:'1.0-0' }} ₪
+            {{ total() | number:'1.0-0' }} ₪
           </td>
         </tr>
 

@@ -38,6 +38,22 @@ def main():
     wb = load_workbook(EXCEL_PATH, data_only=True)
     members_sheet = wb["חברים"]
 
+    shares_sheet = wb["מניות חבר"]
+
+    shares_map = {}
+
+    for row in shares_sheet.iter_rows(min_row=2):
+        company_code = row[11].value   # L
+        budget_code  = row[12].value   # M
+        amount       = to_num(row[17].value)  # R
+
+        if not is_valid(budget_code):
+            continue
+
+        key = str(budget_code).strip()
+
+        shares_map[key] = shares_map.get(key, 0) + amount
+
     print("Reset special budget table...")
 
     cur.execute("DROP TABLE IF EXISTS special_budgets CASCADE")
@@ -73,6 +89,8 @@ def main():
                 
         leaving_grant_age_65 NUMERIC,
         leaving_grant_age_65_year NUMERIC,
+                
+        shares_amount NUMERIC,
                                     
 
         PRIMARY KEY (budget_code, member_code)
@@ -128,6 +146,8 @@ def main():
 
             to_num(row[39].value),  # AN
             to_num(row[40].value),  # AO
+
+            shares_map.get(budget_code, 0) 
         ))
 
     execute_values(cur, """
@@ -151,7 +171,8 @@ def main():
             leaving_grant_25y,
             leaving_grant_25y_year, 
             leaving_grant_age_65,
-            leaving_grant_age_65_year
+            leaving_grant_age_65_year,
+            shares_amount
             
         ) VALUES %s
     """, data)
