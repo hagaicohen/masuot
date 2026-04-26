@@ -1,0 +1,13 @@
+/* רק לטבלת מניות */
+.shares-table td.total,
+.shares-table th.total {
+  text-align: left;       /* הצמדה לשמאל */
+  white-space: nowrap;    /* שלא ירד שורה */
+  min-width: 140px;       /* מספיק מקום */
+}
+
+/* סדר נכון של מספרים בעברית */
+.shares-table .currency-cell {
+  direction: ltr;         /* 🔥 הכי חשוב */
+  unicode-bidi: isolate;  /* מונע בלגן RTL */
+}

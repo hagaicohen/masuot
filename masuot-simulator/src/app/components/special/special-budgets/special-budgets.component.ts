@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
-import { SimulatorService } from '../../services/simulator.service';
+import { SimulatorService } from '../../../services/simulator.service';
 import { Component } from '@angular/core';
-import { AccordionPanelComponent } from '../shared/accordion-panel/accordion-panel.component';
+import { AccordionPanelComponent } from '../../shared/accordion-panel/accordion-panel.component';
 import { BarMitzvahComponent } from "./bar-mitzvah/bar-mitzvah.component";
 import { BatMitzvahComponent } from "./bat-mitzvah/bat-mitzvah.component";
 import { WeddingComponent } from "./wedding/wedding.component";

@@ -6,6 +6,8 @@ import { AdminService } from './admin.service';
 @Injectable({ providedIn: 'root' })
 export class SimulatorService {
 
+  tab = signal<'current' | 'special'>('current');
+  
   private family = inject(FamilyService).family;
   private params = inject(AdminService).params;
   private familyService = inject(FamilyService);
@@ -77,6 +79,40 @@ export class SimulatorService {
     return this.familyService.round(sum);
   });
 
+  leavingGrantsTotal = computed(() => {
+    const f = this.familyState();
+    if (!f) return 0;
+
+    const list = f.specialBudgets ?? [];
+
+    let sum = 0;
+
+    for (const x of list) {
+      sum +=
+        (x.leaving_grant_25y || 0) +
+        (x.leaving_grant_age_65 || 0);
+    }
+
+    return this.familyService.round(sum);
+  });
+
+  sharesTotal = computed(() => {
+    const f = this.familyState();
+    if (!f) return 0;
+
+    const list = f.specialBudgets ?? [];
+
+    return this.familyService.round(
+      list.reduce((sum: number, x: any) => 
+        sum + (x.shares_amount || 0), 
+      0)
+    );
+  });
+
+  allSpecialTotal = computed(() =>
+    this.specialGrantsTotal() + this.leavingGrantsTotal() + this.sharesTotal()
+  );
+  
   // ✅ FIX — רק זה משתנה
 private calcMutualResponsibility(updatedNetSalary: number, pension: number, rules: any): number {
   const income = Number(updatedNetSalary || 0) + Number(pension || 0);

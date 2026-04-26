@@ -1,0 +1,56 @@
+.sum-bar {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  z-index: 100;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  padding: 10px 24px;
+  box-shadow: 0 -2px 12px rgba(0,0,0,.2);
+}
+
+.sum-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr 1px 1fr 1px 1fr;
+  align-items: center;
+}
+
+.sum-div {
+  background: rgba(255,255,255,.2);
+  height: 32px;
+}
+
+.sum-item {
+  text-align: center;
+  padding: 0 4px;
+}
+
+.sum-lbl {
+  font-size: 10px;
+  color: #9FE1CB;
+  margin-bottom: 1px;
+  white-space: nowrap;
+}
+
+.sum-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.sum-val.green {
+  color: #C0DD97;
+}
+
+.sum-val.red {
+  color: #f9a8a8;
+}
+
+@media (max-width: 600px) {
+  .sum-bar { padding: 10px 6px; }
+  .sum-val { font-size: 12px; }
+  .sum-lbl { font-size: 9px; }
+}

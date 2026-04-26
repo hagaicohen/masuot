@@ -91,6 +91,8 @@ async function getSpecialBudgets(budget_code: string) {
     leaving_grant_age_65: Number(r.leaving_grant_age_65 || 0),
     leaving_grant_age_65_year: Number(r.leaving_grant_age_65_year || 0),
 
+    shares_amount: Number(r.shares_amount || 0)
+
   }));
 }
 

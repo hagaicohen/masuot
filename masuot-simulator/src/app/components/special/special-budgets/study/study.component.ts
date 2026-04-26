@@ -1,34 +1,33 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
-import { FamilyService } from '../../../services/family.service';
-import { AccordionPanelComponent } from '../../../components/shared/accordion-panel/accordion-panel.component';
-import { SpecialBudget } from '../../../models/simulator.models';
+import { FamilyService } from '../../../../services/family.service';
+import { AccordionPanelComponent } from '../../../shared/accordion-panel/accordion-panel.component';
+import { SpecialBudget } from '../../../../models/simulator.models';
 
 @Component({
-  selector: 'app-bar-mitzvah',
+  selector: 'app-study',
   standalone: true,
   imports: [CommonModule,AccordionPanelComponent],
-  templateUrl: './bar-mitzvah.component.html',
-  styleUrl: './bar-mitzvah.component.css'
+  templateUrl: './study.component.html',
+  styleUrl: './study.component.css'
 })
-export class BarMitzvahComponent {
-
+export class StudyComponent {
   private familyService = inject(FamilyService);
 
   total = computed(() =>
-    this.barMitzvah().reduce((s, x) => s + x.amount, 0)
+    this.study().reduce((s, x) => s + x.amount, 0)
   );
 
-  barMitzvah = computed(() => {
+  study = computed(() => {
     const f = this.familyService.family();
     if (!f) return [];
 
     return (f.specialBudgets ?? [])
-      .filter((x: SpecialBudget) => x.bar_mitzvah_amount > 0)
+      .filter((x: SpecialBudget) => x.study_grant > 0)
       .map((x: SpecialBudget) => ({
         name: `${x.first_name} ${x.last_name}`,
-        amount: x.bar_mitzvah_amount,
-        year: x.bar_mitzvah_year,
+        amount: x.study_grant,
+        year: x.study_year,
         age: x.age
       }))
       .sort((a, b) => a.year - b.year);
@@ -42,3 +41,4 @@ export class BarMitzvahComponent {
     return this.formatMoney(this.total());
   }
 }
+

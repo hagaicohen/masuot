@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
-import { FamilyService } from '../../../services/family.service';
-import { AccordionPanelComponent } from '../../../components/shared/accordion-panel/accordion-panel.component';
-import { SpecialBudget } from '../../../models/simulator.models';
+import { FamilyService } from '../../../../services/family.service';
+import { AccordionPanelComponent } from '../../../shared/accordion-panel/accordion-panel.component';
+import { SpecialBudget } from '../../../../models/simulator.models';
 
 
 @Component({

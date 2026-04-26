@@ -1,0 +1,43 @@
+<div class="sum-bar">
+  <div class="sum-inner">
+
+    <!-- הקצאות מיוחדות -->
+    <div class="sum-item">
+      <div class="sum-lbl">הקצאות מיוחדות</div>
+      <div class="sum-val">
+        {{ special() | number:'1.0-0' }} ₪
+      </div>
+    </div>
+
+    <div class="sum-div"></div>
+
+    <!-- דמי עזיבה -->
+    <div class="sum-item">
+      <div class="sum-lbl">דמי עזיבה</div>
+      <div class="sum-val">
+        {{ leaving() | number:'1.0-0' }} ₪
+      </div>
+    </div>
+
+    <div class="sum-div"></div>
+
+    <!-- שווי מניות -->
+    <div class="sum-item">
+      <div class="sum-lbl">שווי מניות</div>
+      <div class="sum-val">
+        {{ shares() | number:'1.0-0' }} ₪
+      </div>
+    </div>
+
+    <div class="sum-div"></div>
+
+    <!-- סה"כ -->
+    <div class="sum-item">
+      <div class="sum-lbl">סה״כ</div>
+      <div class="sum-val green">
+        {{ total() | number:'1.0-0' }} ₪
+      </div>
+    </div>
+
+  </div>
+</div>
