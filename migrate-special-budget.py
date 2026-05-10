@@ -12,45 +12,68 @@ def connect():
         user="postgres.jhkxyiiwtxtgqxovljkl",
         password="__Por@t2019!")
 
+
 def to_num(val):
+
     if val is None or val == '':
         return 0
+
     try:
         return float(val)
+
     except:
         return 0
 
 def is_valid(v):
+
     return v is not None and str(v).strip() != ""
 
 def norm_id(v):
+
     if v is None:
         return None
+
     try:
         return str(int(float(v))).strip()
+
     except:
         return str(v).strip()
 
+def make_key(budget_code, member_code):
+
+    return f"{str(budget_code).strip()}_{norm_id(member_code)}"
+
 def main():
+
     conn = connect()
     cur = conn.cursor()
 
     wb = load_workbook(EXCEL_PATH, data_only=True)
-    members_sheet = wb["חברים"]
 
+    members_sheet = wb["חברים"]
     shares_sheet = wb["מניות חבר"]
 
+    # 🔥 KEY = budget_code + member_code
     shares_map = {}
 
-    for row in shares_sheet.iter_rows(min_row=2):
-        company_code = row[11].value   # L
-        budget_code  = row[12].value   # M
-        amount       = to_num(row[17].value)  # R
+    print("Loading shares data...")
 
-        if not is_valid(budget_code):
+    # =========================================================
+    # LOAD SHARES
+    # =========================================================
+
+    for row in shares_sheet.iter_rows(min_row=2):
+
+        member_code = norm_id(row[11].value)   # L
+        budget_code = row[12].value            # M
+        amount = to_num(row[17].value)         # R
+
+        if not is_valid(budget_code) or not is_valid(member_code):
             continue
 
-        key = str(budget_code).strip()
+        budget_code = str(budget_code).strip()
+
+        key = make_key(budget_code, member_code)
 
         shares_map[key] = shares_map.get(key, 0) + amount
 
@@ -61,11 +84,15 @@ def main():
     print("Create table...")
 
     cur.execute("""
+
     CREATE TABLE special_budgets (
+
         budget_code TEXT,
         member_code TEXT,
+
         last_name TEXT,
         first_name TEXT,
+
         birth_date DATE,
         age NUMERIC,
 
@@ -82,26 +109,38 @@ def main():
         study_year NUMERIC,
 
         paint_grant NUMERIC,
-        paint_year NUMERIC,        
-                
+        paint_year NUMERIC,
+
         leaving_grant_25y NUMERIC,
         leaving_grant_25y_year NUMERIC,
-                
+
         leaving_grant_age_65 NUMERIC,
         leaving_grant_age_65_year NUMERIC,
-                
+
         shares_amount NUMERIC,
-                                    
 
         PRIMARY KEY (budget_code, member_code)
+
     )
+
     """)
 
+    # =========================================================
     # INDEXES
-    cur.execute("CREATE INDEX idx_sb_budget_code ON special_budgets(budget_code)")
-    cur.execute("CREATE INDEX idx_sb_member_code ON special_budgets(member_code)")
+    # =========================================================
+
     cur.execute("""
-        CREATE INDEX idx_sb_budget_member 
+        CREATE INDEX idx_sb_budget_code
+        ON special_budgets(budget_code)
+    """)
+
+    cur.execute("""
+        CREATE INDEX idx_sb_member_code
+        ON special_budgets(member_code)
+    """)
+
+    cur.execute("""
+        CREATE INDEX idx_sb_budget_member
         ON special_budgets(budget_code, member_code)
     """)
 
@@ -109,20 +148,33 @@ def main():
 
     data = []
 
+    # =========================================================
+    # MEMBERS
+    # =========================================================
+
     for row in members_sheet.iter_rows(min_row=6):
-        budget_code = row[19].value  # 🔥 עמודה T
-        member_code = norm_id(row[0].value)
+
+        member_code = norm_id(row[0].value)   # A
+        budget_code = row[7].value            # H ✅
 
         if not is_valid(budget_code) or not is_valid(member_code):
+
             continue
 
         budget_code = str(budget_code).strip()
 
+        shares_key = make_key(budget_code, member_code)
+
+        shares_amount = shares_map.get(shares_key, 0)
+
         data.append((
+
             budget_code,
             member_code,
+
             row[2].value,  # last_name
             row[3].value,  # first_name
+
             row[5].value,  # birth_date
             to_num(row[6].value),  # age
 
@@ -147,34 +199,48 @@ def main():
             to_num(row[39].value),  # AN
             to_num(row[40].value),  # AO
 
-            shares_map.get(budget_code, 0) 
+            shares_amount
+
         ))
 
     execute_values(cur, """
+
         INSERT INTO special_budgets (
+
             budget_code,
             member_code,
+
             last_name,
             first_name,
+
             birth_date,
             age,
+
             bar_mitzvah_amount,
             bar_mitzvah_year,
+
             bat_mitzvah_amount,
             bat_mitzvah_year,
+
             wedding_grant,
             wedding_year,
+
             study_grant,
             study_year,
+
             paint_grant,
             paint_year,
+
             leaving_grant_25y,
-            leaving_grant_25y_year, 
+            leaving_grant_25y_year,
+
             leaving_grant_age_65,
             leaving_grant_age_65_year,
+
             shares_amount
-            
+
         ) VALUES %s
+
     """, data)
 
     print("Inserted:", len(data))
