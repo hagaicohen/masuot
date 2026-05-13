@@ -684,7 +684,7 @@ export class SimulatorService {
 
     setTimeout(() => {
       this.loading.set(false);
-    }, 2000);
+    }, 700);
   }
 
   calculateHishtalmut(gross: number, rules: any): number {
