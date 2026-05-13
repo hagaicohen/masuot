@@ -31,25 +31,16 @@
       <!-- NET CURRENT -->
 
       <div class="leaf">
-        <span class="leaf-label"> שכר נטו נוכחי </span>
+        <span class="leaf-label">שכר נטו</span>
 
         <span class="leaf-val">
-          {{ m.currentSalary | number: "1.0-0" }} ₪
+          {{ m.expectedSalary | number: "1.0-0" }} ₪
         </span>
       </div>
 
       <!-- NET UPDATED -->
 
-      <div class="leaf">
-        <span class="leaf-label"> שכר נטו מעודכן </span>
-
-        <input
-          class="leaf-input"
-          type="number"
-          [(ngModel)]="m.expectedSalary"
-          (ngModelChange)="onSalaryChange()"
-        />
-      </div>
+     
     </app-accordion-panel>
   </div>
 </app-accordion-panel>
