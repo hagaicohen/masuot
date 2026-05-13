@@ -1,36 +1,23 @@
 <ng-container>
+  <app-accordion-panel title="תעודת חוב" [badge]="badge" [level]="1">
+    <div class="inner-padded">
+      <table class="edu-table shares-table">
+        <thead>
+          <tr>
+            <th>שם</th>
+            <th class="total">סכום</th>
+          </tr>
+        </thead>
 
-<app-accordion-panel 
-  title="תעודת חוב"
-  [badge]="badge"
-  [level]="1">
-
-  <div class="inner-padded">
-
-    <table class="edu-table shares-table">
-
-      <thead>
-        <tr>
-          <th>שם</th>
-          <th class="total">סכום</th>
-        </tr>
-      </thead>
-
-      <tbody>
-
-        <tr *ngFor="let row of shares()">
-          <td>{{ row.name }}</td>
-         <td class="total green currency-cell">
-            ₪ {{ row.amount | number:'1.0-0' }}
-         </td>
-        
-
-      </tbody>
-
-    </table>
-
-  </div>
-
-</app-accordion-panel>
-
+        <tbody>
+          <tr *ngFor="let row of shares()">
+            <td>{{ row.name }}</td>
+            <td class="total green currency-cell">
+              ₪ {{ row.amount | number: "1.0-0" }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </app-accordion-panel>
 </ng-container>

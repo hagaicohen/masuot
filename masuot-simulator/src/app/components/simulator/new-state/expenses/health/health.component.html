@@ -1,11 +1,12 @@
 <ng-container *ngIf="result() as r">
-
-  <app-accordion-panel title="בריאות" [badge]="badge" [level]="3" [badgeRed]="true">
-
+  <app-accordion-panel
+    title="בריאות"
+    [badge]="badge"
+    [level]="3"
+    [badgeRed]="true"
+  >
     <div class="inner-padded">
-
       <table class="edu-table">
-
         <thead>
           <tr>
             <th>סוג</th>
@@ -16,14 +17,19 @@
         </thead>
 
         <tbody>
-
           <!-- בסיס -->
           <tr>
             <td>בסיס</td>
             <td>{{ family()?.inputs?.health_total || 0 }}</td>
-            <td>{{ (family()?.rules?.['health_total'] || 0) | number:'1.0-0' }} ₪</td>
+            <td>
+              {{ family()?.rules?.["health_total"] || 0 | number: "1.0-0" }} ₪
+            </td>
             <td class="total red">
-              {{ ((family()?.inputs?.health_total || 0) * (family()?.rules?.['health_total'] || 0)) | number:'1.0-0' }} ₪
+              {{
+                (family()?.inputs?.health_total || 0) *
+                  (family()?.rules?.["health_total"] || 0) | number: "1.0-0"
+              }}
+              ₪
             </td>
           </tr>
 
@@ -31,27 +37,45 @@
           <tr>
             <td>עד 50</td>
             <td>{{ family()?.inputs?.health_0_50 || 0 }}</td>
-            <td>{{ (family()?.rules?.['health_0_50'] || 0) | number:'1.0-0' }} ₪</td>
+            <td>
+              {{ family()?.rules?.["health_0_50"] || 0 | number: "1.0-0" }} ₪
+            </td>
             <td class="total red">
-              {{ ((family()?.inputs?.health_0_50 || 0) * (family()?.rules?.['health_0_50'] || 0)) | number:'1.0-0' }} ₪
+              {{
+                (family()?.inputs?.health_0_50 || 0) *
+                  (family()?.rules?.["health_0_50"] || 0) | number: "1.0-0"
+              }}
+              ₪
             </td>
           </tr>
 
           <tr>
             <td>50–70</td>
             <td>{{ family()?.inputs?.health_50_70 || 0 }}</td>
-            <td>{{ (family()?.rules?.['health_50_70'] || 0) | number:'1.0-0' }} ₪</td>
+            <td>
+              {{ family()?.rules?.["health_50_70"] || 0 | number: "1.0-0" }} ₪
+            </td>
             <td class="total red">
-              {{ ((family()?.inputs?.health_50_70 || 0) * (family()?.rules?.['health_50_70'] || 0)) | number:'1.0-0' }} ₪
+              {{
+                (family()?.inputs?.health_50_70 || 0) *
+                  (family()?.rules?.["health_50_70"] || 0) | number: "1.0-0"
+              }}
+              ₪
             </td>
           </tr>
 
           <tr>
             <td>70+</td>
             <td>{{ family()?.inputs?.health_70_plus || 0 }}</td>
-            <td>{{ (family()?.rules?.['health_70_plus'] || 0) | number:'1.0-0' }} ₪</td>
+            <td>
+              {{ family()?.rules?.["health_70_plus"] || 0 | number: "1.0-0" }} ₪
+            </td>
             <td class="total red">
-              {{ ((family()?.inputs?.health_70_plus || 0) * (family()?.rules?.['health_70_plus'] || 0)) | number:'1.0-0' }} ₪
+              {{
+                (family()?.inputs?.health_70_plus || 0) *
+                  (family()?.rules?.["health_70_plus"] || 0) | number: "1.0-0"
+              }}
+              ₪
             </td>
           </tr>
 
@@ -60,26 +84,22 @@
             <td colspan="3">השתתפות בהוצאות בריאות</td>
 
             <!-- 🔥 ADDED style -->
-            <td class="total green" style="text-align: left;">
-             <span class="num">
-              {{ r.healthParticipation | number:'1.0-0' }}
-            </span>&nbsp;₪
+            <td class="total green" style="text-align: left">
+              <span class="num">
+                {{ r.healthParticipation | number: "1.0-0" }} </span
+              >&nbsp;₪
             </td>
           </tr>
         </tbody>
-
       </table>
-
     </div>
 
     <!-- 🔥 UPDATED — הפחתת השתתפות -->
     <div class="total-row">
       <span>סה"כ הוצאות בריאות</span>
       <span class="leaf-val red">
-        {{ r.healthExpenses | number:'1.0-0' }} ₪
+        {{ r.healthExpenses | number: "1.0-0" }} ₪
       </span>
     </div>
-
   </app-accordion-panel>
-
 </ng-container>

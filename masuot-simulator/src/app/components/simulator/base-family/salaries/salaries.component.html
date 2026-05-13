@@ -4,24 +4,52 @@
       *ngFor="let m of getSortedMembers(); let i = index"
       [title]="getMemberTitle(i, m)"
       [badge]="memberBadge(m)"
-      [level]="3">
+      [level]="3"
+    >
+      <!-- GROSS CURRENT -->
 
       <div class="leaf">
-        <span class="leaf-label">שכר נטו נוכחי</span>
-        <span class="leaf-val">{{ m.currentSalary | number:'1.0-0' }} ₪</span>
+        <span class="leaf-label"> שכר ברוטו נוכחי </span>
+
+        <span class="leaf-val"> {{ m.gross_income | number: "1.0-0" }} ₪ </span>
       </div>
 
+      <!-- GROSS UPDATED -->
+
       <div class="leaf">
-        <span class="leaf-label">שכר נטו מעודכן</span>
+        <span class="leaf-label"> שכר ברוטו מעודכן </span>
+
+        <div class="salary-update-row">
+          <input
+            class="leaf-input"
+            type="text"
+            [ngModel]="formatMoney(m.tempGross)"
+            (ngModelChange)="onGrossInput(m, $event)"
+          />
+        </div>
+      </div>
+      <!-- NET CURRENT -->
+
+      <div class="leaf">
+        <span class="leaf-label"> שכר נטו נוכחי </span>
+
+        <span class="leaf-val">
+          {{ m.currentSalary | number: "1.0-0" }} ₪
+        </span>
+      </div>
+
+      <!-- NET UPDATED -->
+
+      <div class="leaf">
+        <span class="leaf-label"> שכר נטו מעודכן </span>
 
         <input
-            class="leaf-input"
-            type="number"
-            [(ngModel)]="m.expectedSalary"
-            (ngModelChange)="onSalaryChange()"
-          />
+          class="leaf-input"
+          type="number"
+          [(ngModel)]="m.expectedSalary"
+          (ngModelChange)="onSalaryChange()"
+        />
       </div>
-
     </app-accordion-panel>
   </div>
 </app-accordion-panel>

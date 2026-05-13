@@ -5,8 +5,12 @@ export interface FamilyMember {
   status: 'employed' | 'retired' | 'unemployed';
   currentSalary: number;
   expectedSalary: number;
-  statusCode:number;
-  educationGroup:string;
+  statusCode: number;
+  educationGroup: string;
+  credit_points?: number;
+  income_type?: string;
+  gross_income?: number;
+  tempGross?: number;
 }
 
 export interface Child {
@@ -14,7 +18,7 @@ export interface Child {
   name: string;
   gender: 'male' | 'female';
   age: number;
-  educationGroup:string;
+  educationGroup: string;
 }
 
 // 🔥 טיפוס חדש ל-inputs (מינימלי כדי שיעבוד)
@@ -26,7 +30,7 @@ export interface SimulatorInputs {
   women_work_benefit: number;
 
   community_tax: number;
-  mutual_responsibility_cap:number;
+  mutual_responsibility_cap: number;
   municipal_tax: number;
   arnona: number;
 
@@ -71,8 +75,15 @@ export interface FamilyData {
 }
 
 export interface AdminParams {
-  education: { daycare: number; kindergarten: number; elementary: number; middle: number; high: number; subsidyPercentage: number; };
-  health: { young: number; middle: number; senior: number; subsidy: number; };
+  education: {
+    daycare: number;
+    kindergarten: number;
+    elementary: number;
+    middle: number;
+    high: number;
+    subsidyPercentage: number;
+  };
+  health: { young: number; middle: number; senior: number; subsidy: number };
   communityTax: number;
   propertyTax: number;
   balanceTaxRate: number;
@@ -139,6 +150,6 @@ export interface SpecialBudget {
 
   leaving_grant_age_65: number;
   leaving_grant_age_65_year: number;
-  
+
   shares_amount: number;
 }

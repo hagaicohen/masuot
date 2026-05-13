@@ -1,38 +1,41 @@
-<app-accordion-panel title="מיסים" [badge]="badge" [level]="3" [badgeRed]="true">
-
+<app-accordion-panel
+  title="מיסים"
+  [badge]="badge"
+  [level]="3"
+  [badgeRed]="true"
+>
   <div class="leaf">
     <span class="leaf-label">ערבות הדדית</span>
     <span class="leaf-val red">
-      {{ result()!.mutualResponsibilityCapped | number:'1.0-0' }} ₪
+      {{ result()!.mutualResponsibilityCapped | number: "1.0-0" }} ₪
     </span>
   </div>
 
   <div class="leaf">
     <span class="leaf-label">מס קהילה</span>
     <span class="leaf-val red">
-      {{ result()!.communityTax | number:'1.0-0' }} ₪
+      {{ result()!.communityTax | number: "1.0-0" }} ₪
     </span>
   </div>
 
   <div class="leaf">
     <span class="leaf-label">מס מוניציפלי</span>
     <span class="leaf-val red">
-      {{ result()!.municipalTax | number:'1.0-0' }} ₪
+      {{ result()!.municipalTax | number: "1.0-0" }} ₪
     </span>
   </div>
 
   <div class="leaf">
     <span class="leaf-label">ארנונה</span>
     <span class="leaf-val red">
-      {{ result()!.arnona | number:'1.0-0' }} ₪
+      {{ result()!.arnona | number: "1.0-0" }} ₪
     </span>
   </div>
 
   <div class="total-row">
     <span>סה"כ מיסים</span>
     <span class="leaf-val red">
-      {{ result()!.taxes | number:'1.0-0' }} ₪
+      {{ result()!.taxes | number: "1.0-0" }} ₪
     </span>
   </div>
-
 </app-accordion-panel>

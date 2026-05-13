@@ -7,16 +7,14 @@ import { SpecialBudget } from '../../../../models/simulator.models';
 @Component({
   selector: 'app-study',
   standalone: true,
-  imports: [CommonModule,AccordionPanelComponent],
+  imports: [CommonModule, AccordionPanelComponent],
   templateUrl: './study.component.html',
-  styleUrl: './study.component.css'
+  styleUrl: './study.component.css',
 })
 export class StudyComponent {
   private familyService = inject(FamilyService);
 
-  total = computed(() =>
-    this.study().reduce((s, x) => s + x.amount, 0)
-  );
+  total = computed(() => this.study().reduce((s, x) => s + x.amount, 0));
 
   study = computed(() => {
     const f = this.familyService.family();
@@ -28,7 +26,7 @@ export class StudyComponent {
         name: `${x.first_name} ${x.last_name}`,
         amount: x.study_grant,
         year: x.study_year,
-        age: x.age
+        age: x.age,
       }))
       .sort((a, b) => a.year - b.year);
   });
@@ -41,4 +39,3 @@ export class StudyComponent {
     return this.formatMoney(this.total());
   }
 }
-

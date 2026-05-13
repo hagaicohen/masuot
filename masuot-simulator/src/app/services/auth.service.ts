@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { FamilyService } from './family.service';
 import { AdminService } from './admin.service';
+import { LoadingService } from './loading.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -12,7 +13,8 @@ export class AuthService {
   constructor(
     private router: Router,
     private familyService: FamilyService,
-    private adminService: AdminService
+    private adminService: AdminService,
+    private loading: LoadingService,
   ) {
     const saved = localStorage.getItem('budgetCode');
     if (saved) {
@@ -22,30 +24,55 @@ export class AuthService {
   }
 
   login(code: string, password: string): Promise<void> {
-    return fetch(`${environment.apiUrl}/api/auth/login`, { // ✅ FIXED HERE
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
+    this.loading.show();
+
+    return fetch(
+      `${environment.apiUrl}/api/auth/login`,
+
+      {
+        method: 'POST',
+
+        headers: {
+          'Content-Type': 'application/json',
+        },
+
+        body: JSON.stringify({
+          budget_code: code,
+
+          password: password,
+        }),
       },
-      body: JSON.stringify({
-        budget_code: code,
-        password: password
-      })
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Login failed');
+    )
+      .then((res) => {
+        if (!res.ok) {
+          this.loading.hide();
+
+          throw new Error('Login failed');
+        }
+
         return res.json();
       })
+
       .then((data) => {
         this.isLoggedIn.set(true);
+
         this.budgetCode.set(code);
 
         localStorage.setItem('budgetCode', code);
+
         localStorage.setItem('token', data.token);
 
         this.familyService.loadFamily();
 
+        this.loading.hide(2000);
+
         this.router.navigate(['/simulator']);
+      })
+
+      .catch((err) => {
+        this.loading.hide();
+
+        throw err;
       });
   }
 

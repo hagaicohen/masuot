@@ -9,16 +9,15 @@ import { AccordionPanelComponent } from '../../../../shared/accordion-panel/acco
   selector: 'app-education',
   standalone: true,
   imports: [CommonModule, AccordionPanelComponent],
-  templateUrl: './education.component.html'
+  templateUrl: './education.component.html',
 })
 export class EducationComponent {
-
   family = inject(FamilyService).family;
-  admin  = inject(AdminService).params;
+  admin = inject(AdminService).params;
   result = inject(SimulatorService).result;
 
   inputs = inject(SimulatorService).inputs;
-  rules  = inject(SimulatorService).rules;
+  rules = inject(SimulatorService).rules;
 
   // 🔴 FIX — הבאנר מציג הוצאה בפועל (כולל השתתפות)
   get badge() {
@@ -27,12 +26,12 @@ export class EducationComponent {
   }
 
   eduLabel(level: string): string {
-    const map: Record<string,string> = {
+    const map: Record<string, string> = {
       daycare: 'פעוטון',
       kindergarten: 'גן',
       elementary: 'יסודי',
       middle: 'חטיבה',
-      high: 'תיכון'
+      high: 'תיכון',
     };
     return map[level] ?? level;
   }
@@ -41,12 +40,12 @@ export class EducationComponent {
     const p = this.admin();
     if (!p) return 0;
 
-    const rates: Record<string,number> = {
+    const rates: Record<string, number> = {
       daycare: p.education.daycare,
       kindergarten: p.education.kindergarten,
       elementary: p.education.elementary,
       middle: p.education.middle,
-      high: p.education.high
+      high: p.education.high,
     };
 
     return rates[level] ?? 0;

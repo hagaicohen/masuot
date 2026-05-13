@@ -8,10 +8,9 @@ import { AccordionPanelComponent } from '../../../shared/accordion-panel/accordi
   standalone: true,
   imports: [CommonModule, AccordionPanelComponent],
   templateUrl: './house-building.component.html',
-  styleUrl: './house-building.component.css'
+  styleUrl: './house-building.component.css',
 })
 export class HouseBuildingComponent {
-
   private familyService = inject(FamilyService);
 
   // 🔥 סכום כולל של צביעה לכל המשפחה
@@ -21,10 +20,7 @@ export class HouseBuildingComponent {
 
     const list = f.specialBudgets ?? [];
 
-    return list.reduce(
-      (sum, x) => sum + (x.paint_grant || 0),
-      0
-    );
+    return list.reduce((sum, x) => sum + (x.paint_grant || 0), 0);
   });
 
   private formatMoney(value: number): string {

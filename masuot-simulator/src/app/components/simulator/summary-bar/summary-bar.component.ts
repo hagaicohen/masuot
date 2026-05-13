@@ -3,9 +3,14 @@ import { CommonModule } from '@angular/common';
 import { SimulatorService } from '../../../services/simulator.service';
 import { FamilyService } from '../../../services/family.service';
 
-@Component({ selector: 'app-summary-bar', standalone: true, imports: [CommonModule], templateUrl: './summary-bar.component.html', styleUrl: './summary-bar.component.scss' })
+@Component({
+  selector: 'app-summary-bar',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './summary-bar.component.html',
+  styleUrl: './summary-bar.component.scss',
+})
 export class SummaryBarComponent {
-  
   family = this.familyService.family;
 
   constructor(public familyService: FamilyService) {}
@@ -19,13 +24,14 @@ export class SummaryBarComponent {
     const f = this.family();
     return f?.simulation;
   }
-  
-  getCurrentState(){
 
+  getCurrentState() {
     if (!this.family()?.simulation) return '0 ₪';
 
     // 🔥 עיגול
-    const value = this.familyService.round(Number(this.family()?.simulation.current_state ?? 0));
+    const value = this.familyService.round(
+      Number(this.family()?.simulation.current_state ?? 0),
+    );
 
     return `${value.toLocaleString('he-IL')} ₪`;
   }

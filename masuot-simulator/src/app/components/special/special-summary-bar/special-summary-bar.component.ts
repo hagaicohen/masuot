@@ -7,16 +7,15 @@ import { SimulatorService } from '../../../services/simulator.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './special-summary-bar.component.html',
-  styleUrl: './special-summary-bar.component.scss'
+  styleUrl: './special-summary-bar.component.scss',
 })
 export class SpecialSummaryBarComponent {
-
   simulator = inject(SimulatorService);
 
   special = this.simulator.specialGrantsTotal;
   leaving = this.simulator.leavingGrantsTotal;
-  shares  = this.simulator.sharesTotal;
-  total   = this.simulator.allSpecialTotal;
+  shares = this.simulator.sharesTotal;
+  total = this.simulator.allSpecialTotal;
 
   format(value: number): string {
     return `${value.toLocaleString('he-IL')} ₪`;

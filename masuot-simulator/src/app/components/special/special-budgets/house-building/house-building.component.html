@@ -1,36 +1,21 @@
 <ng-container>
+  <app-accordion-panel title="תקציב צביעה" [badge]="badge" [level]="2">
+    <div class="inner-padded">
+      <table class="edu-table">
+        <thead>
+          <tr>
+            <th>סוג</th>
+            <th class="total">סה״כ</th>
+          </tr>
+        </thead>
 
-<app-accordion-panel 
-  title="תקציב צביעה"
-  [badge]="badge"
-  [level]="2">
-
-  <div class="inner-padded">
-
-    <table class="edu-table">
-
-      <thead>
-        <tr>
-          <th>סוג</th>
-          <th class="total">סה״כ</th>
-        </tr>
-      </thead>
-
-      <tbody>
-
-        <tr>
-          <td>צביעה</td>
-          <td class="total green">
-            {{ total() | number:'1.0-0' }} ₪
-          </td>
-        </tr>
-
-      </tbody>
-
-    </table>
-
-  </div>
-
-</app-accordion-panel>
-
+        <tbody>
+          <tr>
+            <td>צביעה</td>
+            <td class="total green">{{ total() | number: "1.0-0" }} ₪</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </app-accordion-panel>
 </ng-container>

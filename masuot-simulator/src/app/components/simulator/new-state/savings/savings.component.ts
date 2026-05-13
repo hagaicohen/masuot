@@ -8,13 +8,10 @@ import { FamilyService } from '../../../../services/family.service';
   selector: 'app-savings',
   standalone: true,
   imports: [CommonModule, AccordionPanelComponent],
-  templateUrl: './savings.component.html'
+  templateUrl: './savings.component.html',
 })
 export class SavingsComponent {
-
-  constructor(private familySvc:FamilyService){
-
-  }
+  constructor(private familySvc: FamilyService) {}
 
   result = inject(SimulatorService).result;
 

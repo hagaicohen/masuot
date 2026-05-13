@@ -1,9 +1,15 @@
 .header {
   position: fixed;
-  top: 0; right: 0; left: 0;
+  top: 0;
+  right: 0;
+  left: 0;
   z-index: 200;
-  height: 72px!important;//var(--header-height);
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  height: 72px !important; //var(--header-height);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary),
+    var(--color-primary-light)
+  );
   color: #fff;
   display: flex;
   align-items: center;
@@ -47,8 +53,8 @@
 }
 
 .btn-logout {
-  background: rgba(255,255,255,.15);
-  border: 1px solid rgba(255,255,255,.3);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
   padding: 6px 14px;
   font-size: 13px;
@@ -56,7 +62,9 @@
   cursor: pointer;
   font-family: inherit;
   white-space: nowrap;
-  &:hover { background: rgba(255,255,255,.25); }
+  &:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
 }
 
 @media (max-width: 600px) {

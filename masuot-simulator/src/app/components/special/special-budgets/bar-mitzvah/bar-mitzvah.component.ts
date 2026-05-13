@@ -7,17 +7,14 @@ import { SpecialBudget } from '../../../../models/simulator.models';
 @Component({
   selector: 'app-bar-mitzvah',
   standalone: true,
-  imports: [CommonModule,AccordionPanelComponent],
+  imports: [CommonModule, AccordionPanelComponent],
   templateUrl: './bar-mitzvah.component.html',
-  styleUrl: './bar-mitzvah.component.css'
+  styleUrl: './bar-mitzvah.component.css',
 })
 export class BarMitzvahComponent {
-
   private familyService = inject(FamilyService);
 
-  total = computed(() =>
-    this.barMitzvah().reduce((s, x) => s + x.amount, 0)
-  );
+  total = computed(() => this.barMitzvah().reduce((s, x) => s + x.amount, 0));
 
   barMitzvah = computed(() => {
     const f = this.familyService.family();
@@ -29,7 +26,7 @@ export class BarMitzvahComponent {
         name: `${x.first_name} ${x.last_name}`,
         amount: x.bar_mitzvah_amount,
         year: x.bar_mitzvah_year,
-        age: x.age
+        age: x.age,
       }))
       .sort((a, b) => a.year - b.year);
   });

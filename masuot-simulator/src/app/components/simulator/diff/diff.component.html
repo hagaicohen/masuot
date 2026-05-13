@@ -1,5 +1,4 @@
 <ng-container *ngIf="result() as r">
-
   <!-- 🔹 הפרש תזרימי -->
   <div class="net-box">
     <span class="net-label">הפרש תזרימי</span>
@@ -8,8 +7,8 @@
       [class.red]="r.cashFlowDiff > 0"
       [class.green]="r.cashFlowDiff <= 0"
     >
-      {{ r.cashFlowDiff < 0 ? '▼' : '▲' }}
-      <span class="num">{{ r.cashFlowDiff | number:'1.0-0' }}</span> ₪
+      {{ r.cashFlowDiff < 0 ? "▼" : "▲" }}
+      <span class="num">{{ r.cashFlowDiff | number: "1.0-0" }}</span> ₪
     </span>
   </div>
 
@@ -21,9 +20,8 @@
       [class.red]="r.economicDiff > 0"
       [class.green]="r.economicDiff <= 0"
     >
-      {{ r.economicDiff < 0 ? '▼' : '▲' }}
-      <span class="num">{{ r.economicDiff | number:'1.0-0' }}</span> ₪
+      {{ r.economicDiff < 0 ? "▼" : "▲" }}
+      <span class="num">{{ r.economicDiff | number: "1.0-0" }}</span> ₪
     </span>
   </div>
-
 </ng-container>

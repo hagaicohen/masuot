@@ -9,10 +9,9 @@ import { SimulatorService } from '../../../services/simulator.service';
   standalone: true,
   imports: [CommonModule, AccordionPanelComponent],
   templateUrl: './shares.component.html',
-  styleUrl: './shares.component.css'
+  styleUrl: './shares.component.css',
 })
 export class SharesComponent {
-
   private familyService = inject(FamilyService);
   private simulatorService = inject(SimulatorService);
 
@@ -22,15 +21,15 @@ export class SharesComponent {
     if (!f) return [];
 
     return (f.specialBudgets ?? [])
-      .map(x => ({
+      .map((x) => ({
         name: `${x.first_name} ${x.last_name}`,
-        amount: x.shares_amount || 0
+        amount: x.shares_amount || 0,
       }))
-      .filter(x => x.amount > 0);
+      .filter((x) => x.amount > 0);
   });
 
   // 🔥 סכום כולל (ל־badge)
-   private formatMoney(value: number): string {
+  private formatMoney(value: number): string {
     return value.toLocaleString('he-IL') + ' ₪';
   }
 

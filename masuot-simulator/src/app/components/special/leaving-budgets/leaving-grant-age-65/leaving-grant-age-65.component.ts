@@ -9,10 +9,9 @@ import { SpecialBudget } from '../../../../models/simulator.models';
   standalone: true,
   imports: [CommonModule, AccordionPanelComponent],
   templateUrl: './leaving-grant-age-65.component.html',
-  styleUrl: './leaving-grant-age-65.component.css'
+  styleUrl: './leaving-grant-age-65.component.css',
 })
 export class LeavingGrantAge65Component {
-
   private familyService = inject(FamilyService);
 
   // 🔥 רשימת חברים
@@ -26,15 +25,13 @@ export class LeavingGrantAge65Component {
         name: `${x.first_name} ${x.last_name}`,
         amount: x.leaving_grant_age_65,
         year: x.leaving_grant_age_65_year,
-        age: x.age
+        age: x.age,
       }))
       .sort((a, b) => a.year - b.year);
   });
 
   // 🔥 סכום כולל
-  total = computed(() =>
-    this.grants().reduce((s, x) => s + x.amount, 0)
-  );
+  total = computed(() => this.grants().reduce((s, x) => s + x.amount, 0));
 
   private formatMoney(value: number): string {
     return value.toLocaleString('he-IL') + ' ₪';

@@ -7,10 +7,9 @@ import { FamilyService } from '../../../services/family.service';
   selector: 'app-current-state',
   standalone: true,
   imports: [CommonModule, AccordionPanelComponent],
-  templateUrl: './current-state.component.html'
+  templateUrl: './current-state.component.html',
 })
 export class CurrentStateComponent {
-
   constructor(private familyService: FamilyService) {}
 
   family = inject(FamilyService).family;

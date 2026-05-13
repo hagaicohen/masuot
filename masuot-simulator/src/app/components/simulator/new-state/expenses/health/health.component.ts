@@ -8,10 +8,9 @@ import { AccordionPanelComponent } from '../../../../shared/accordion-panel/acco
   selector: 'app-health',
   standalone: true,
   imports: [CommonModule, AccordionPanelComponent],
-  templateUrl: './health.component.html'
+  templateUrl: './health.component.html',
 })
 export class HealthComponent {
-
   Math = Math;
 
   family = inject(FamilyService).family; // 🔥 הוספנו
@@ -24,7 +23,7 @@ export class HealthComponent {
 
     // 🔥 ADDED — normalize participation (always positive)
     const participation = Math.abs(
-      Number(this.family()?.inputs?.health_participation ?? 0)
+      Number(this.family()?.inputs?.health_participation ?? 0),
     );
 
     // 🔥 UPDATED — subtract participation

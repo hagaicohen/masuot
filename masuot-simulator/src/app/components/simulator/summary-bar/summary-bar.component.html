@@ -1,11 +1,10 @@
 <div class="sum-bar" *ngIf="result() as r">
   <div class="sum-inner">
-
     <!-- מצב קיים -->
     <div class="sum-item">
       <div class="sum-lbl">מצב קיים</div>
       <div class="sum-val">
-        {{ getCurrentState() }} 
+        {{ getCurrentState() }}
       </div>
     </div>
 
@@ -15,45 +14,44 @@
     <div class="sum-item">
       <div class="sum-lbl">מצב חדש</div>
       <div class="sum-val">
-        {{ (r.newIncome - r.newExpenses) | number:'1.0-0' }} ₪
+        {{ r.newIncome - r.newExpenses | number: "1.0-0" }} ₪
       </div>
     </div>
 
     <div class="sum-div"></div>
 
-   <!-- הפרש תזרימי -->
-<div class="sum-item">
-  <div class="sum-lbl">הפרש תזרימי</div>
-  <div class="sum-val"
-       [class.green]="r.cashFlowDiff >= 0"
-       [class.red]="r.cashFlowDiff < 0">
+    <!-- הפרש תזרימי -->
+    <div class="sum-item">
+      <div class="sum-lbl">הפרש תזרימי</div>
+      <div
+        class="sum-val"
+        [class.green]="r.cashFlowDiff >= 0"
+        [class.red]="r.cashFlowDiff < 0"
+      >
+        {{ r.cashFlowDiff >= 0 ? "▲" : "▼" }}
 
-    {{ r.cashFlowDiff >= 0 ? '▲' : '▼' }}
+        <span class="num">
+          {{ r.cashFlowDiff | number: "1.0-0" }} </span
+        >&nbsp;₪
+      </div>
+    </div>
 
-    <span class="num">
-      {{ r.cashFlowDiff | number:'1.0-0' }}
-    </span>&nbsp;₪
+    <div class="sum-div"></div>
 
-  </div>
-</div>
+    <!-- הפרש כלכלי -->
+    <div class="sum-item">
+      <div class="sum-lbl">הפרש כלכלי</div>
+      <div
+        class="sum-val"
+        [class.green]="r.economicDiff >= 0"
+        [class.red]="r.economicDiff < 0"
+      >
+        {{ r.economicDiff >= 0 ? "▲" : "▼" }}
 
-<div class="sum-div"></div>
-
-<!-- הפרש כלכלי -->
-<div class="sum-item">
-  <div class="sum-lbl">הפרש כלכלי</div>
-  <div class="sum-val"
-       [class.green]="r.economicDiff >= 0"
-       [class.red]="r.economicDiff < 0">
-
-    {{ r.economicDiff >= 0 ? '▲' : '▼' }}
-
-    <span class="num">
-      {{ r.economicDiff | number:'1.0-0' }}
-    </span>&nbsp;₪
-
-  </div>
-</div>
-
+        <span class="num">
+          {{ r.economicDiff | number: "1.0-0" }} </span
+        >&nbsp;₪
+      </div>
+    </div>
   </div>
 </div>

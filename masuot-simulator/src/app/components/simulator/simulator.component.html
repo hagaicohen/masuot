@@ -2,35 +2,29 @@
 
 <!-- 🔹 טאבים -->
 <div class="tabs-container">
-
   <div class="tabs-inner">
-
-    <button 
+    <button
       class="tab"
       [class.active]="simulator.tab() === 'current'"
-      (click)="simulator.tab.set('current')">
-
+      (click)="simulator.tab.set('current')"
+    >
       <span class="tab-content">
         <span>תקציב שוטף</span>
         <span class="icon">📊</span>
       </span>
-
     </button>
 
-    <button 
+    <button
       class="tab"
       [class.active]="simulator.tab() === 'special'"
-      (click)="simulator.tab.set('special')">
-
+      (click)="simulator.tab.set('special')"
+    >
       <span class="tab-content">
         <span>תקציבים מיוחדים</span>
         <span class="icon">⭐</span>
       </span>
-
     </button>
-
   </div>
-
 </div>
 
 <!-- 🔹 תקציב שוטף -->
@@ -46,26 +40,31 @@
 <!-- 🔹 תקציבים מיוחדים -->
 <div *ngIf="simulator.tab() === 'special'">
   <div class="main">
-
     <app-special-budgets></app-special-budgets>
     <app-leaving-budgets></app-leaving-budgets>
     <app-shares></app-shares>
 
     <!-- 🔹 סיכום כולל -->
     <div class="net-box">
-
       <span class="net-label">סה"כ תקציבים מיוחדים</span>
 
       <span class="net-val green">
         <span class="num">
-          {{ simulator.allSpecialTotal() | number:'1.0-0' }}
-        </span> ₪
+          {{ simulator.allSpecialTotal() | number: "1.0-0" }}
+        </span>
+        ₪
       </span>
-
     </div>
-
   </div>
 </div>
 
 <app-summary-bar *ngIf="simulator.tab() === 'current'"></app-summary-bar>
-<app-special-summary-bar *ngIf="simulator.tab() === 'special'"></app-special-summary-bar>
+<app-special-summary-bar
+  *ngIf="simulator.tab() === 'special'"
+></app-special-summary-bar>
+
+@if (simulator.loading()) {
+  <div class="global-loading">
+    <div class="spinner"></div>
+  </div>
+}

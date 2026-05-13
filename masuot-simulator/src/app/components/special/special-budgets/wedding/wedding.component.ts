@@ -4,20 +4,17 @@ import { FamilyService } from '../../../../services/family.service';
 import { AccordionPanelComponent } from '../../../shared/accordion-panel/accordion-panel.component';
 import { SpecialBudget } from '../../../../models/simulator.models';
 
-
 @Component({
   selector: 'app-wedding',
   standalone: true,
-  imports: [CommonModule,AccordionPanelComponent],
+  imports: [CommonModule, AccordionPanelComponent],
   templateUrl: './wedding.component.html',
-  styleUrl: './wedding.component.css'
+  styleUrl: './wedding.component.css',
 })
 export class WeddingComponent {
   private familyService = inject(FamilyService);
 
-  total = computed(() =>
-    this.wedding().reduce((s, x) => s + x.amount, 0)
-  );
+  total = computed(() => this.wedding().reduce((s, x) => s + x.amount, 0));
 
   wedding = computed(() => {
     const f = this.familyService.family();
@@ -29,7 +26,7 @@ export class WeddingComponent {
         name: `${x.first_name} ${x.last_name}`,
         amount: x.wedding_grant,
         year: x.wedding_year,
-        age: x.age
+        age: x.age,
       }))
       .sort((a, b) => a.year - b.year);
   });

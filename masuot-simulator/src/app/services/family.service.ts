@@ -6,7 +6,6 @@ import { firstValueFrom } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class FamilyService {
-
   family = signal<FamilyData | null>(null);
 
   constructor(private http: HttpClient) {}
@@ -24,22 +23,42 @@ export class FamilyService {
     try {
       const data = await firstValueFrom(
         this.http.get<any>(
-          `${environment.apiUrl}/api/family/${budgetCode}/simulation` // ✅ FIXED
-        )
+          `${environment.apiUrl}/api/family/${budgetCode}/simulation`, // ✅ FIXED
+        ),
       );
 
       console.log('FAMILY DATA:', data);
 
-      const members: FamilyMember[] = data.members.map((m: any, index: number) => ({
-        id: `${index}`,
-        name: `${this.clean(this.flipParentheses(m.first_name))}`,
-        age: Number(m.age),
-        status: 'employed',
-        currentSalary: Number(m.net_salary || 0),
-        expectedSalary: Math.round(Number(m.net_salary || 0)),
-        statusCode:Math.round(Number(m.status_code || 0)),
-         educationGroup: m.education_group
-      }));
+      const members: FamilyMember[] = data.members.map(
+        (m: any, index: number) => ({
+          id: `${index}`,
+
+          name: `${this.clean(this.flipParentheses(m.first_name))}`,
+
+          age: Number(m.age),
+
+          status: 'employed',
+
+          currentSalary: Number(m.net_salary || 0),
+
+          expectedSalary: Math.round(Number(m.net_salary || 0)),
+
+          // 🔥 ADDED
+          gross_income: Number(m.gross_income || 0),
+
+          tempGross: Number(m.gross_income || 0),
+
+          // 🔥 ADDED
+          credit_points: Number(m.credit_points || 0),
+
+          // 🔥 ADDED
+          income_type: m.income_type || '',
+
+          statusCode: Math.round(Number(m.status_code || 0)),
+
+          educationGroup: m.education_group,
+        }),
+      );
 
       const children: Child[] = this.mapChildren(members);
 
@@ -55,7 +74,9 @@ export class FamilyService {
         arnona: Number(data.family?.arnona ?? 0),
         community_tax: Number(data.family?.community_tax ?? 0),
         municipal_tax: Number(data.family?.municipal_tax ?? 0),
-        mutual_responsibility_cap:Number(data.family?.mutual_responsibility_cap ?? 0),
+        mutual_responsibility_cap: Number(
+          data.family?.mutual_responsibility_cap ?? 0,
+        ),
 
         members,
         children,
@@ -66,15 +87,13 @@ export class FamilyService {
         hishtalmut_fund: Number(data.family?.hishtalmut_fund ?? 0),
         pension_contribution: Number(data.family?.pension_contribution ?? 0),
 
-        
-
         inputs: {
           ...data.inputs,
           pension: Number(data.inputs?.pension),
           survivors: Number(data.inputs?.survivors),
           old_age_allowance: Number(data.inputs?.old_age_allowance),
           flow_income: Number(data.inputs?.flow_income),
-          health_cost: 0
+          health_cost: 0,
         },
 
         simulation: {
@@ -91,10 +110,10 @@ export class FamilyService {
             Number(sim?.women_work_benefit) +
             Number(sim?.travel) +
             Number(sim?.periodic_grant) +
-            Number(sim?.special_help)
+            Number(sim?.special_help),
         },
 
-        rules: data.rules
+        rules: data.rules,
       };
 
       console.log('SPECIAL NORMALIZED:', baseFamily.specialBudgets);
@@ -105,12 +124,11 @@ export class FamilyService {
         ...baseFamily,
         inputs: {
           ...baseFamily.inputs,
-          health_cost: healthCost
-        }
+          health_cost: healthCost,
+        },
       });
 
       console.log('NORMALIZED FAMILY:', this.family());
-
     } catch (err) {
       console.error(err);
     }
@@ -119,19 +137,18 @@ export class FamilyService {
   }
 
   calculateHealthCost(f: any): number {
-
     const total = Number(f.inputs?.health_total ?? 0);
     const young = Number(f.inputs?.health_0_50 ?? 0);
-    const mid   = Number(f.inputs?.health_50_70 ?? 0);
-    const old   = Number(f.inputs?.health_70_plus ?? 0);
+    const mid = Number(f.inputs?.health_50_70 ?? 0);
+    const old = Number(f.inputs?.health_70_plus ?? 0);
 
     const r = f.rules ?? {};
 
     const cost =
       total * Number(r.health_total ?? 0) +
       young * Number(r.health_0_50 ?? 0) +
-      mid   * Number(r.health_50_70 ?? 0) +
-      old   * Number(r.health_70_plus ?? 0);
+      mid * Number(r.health_50_70 ?? 0) +
+      old * Number(r.health_70_plus ?? 0);
 
     return this.round(cost);
   }
@@ -141,31 +158,30 @@ export class FamilyService {
     if (!f) return;
 
     const updated = Math.round(
-      f.members.reduce(
-        (sum, m) => sum + (m.expectedSalary ?? 0),
-        0
-      )
+      f.members.reduce((sum, m) => sum + (m.expectedSalary ?? 0), 0),
     );
 
     this.family.set({
       ...f,
-      updatedNetSalary: updated
+      updatedNetSalary: updated,
     });
   }
 
   private mapChildren(rawMembers: FamilyMember[]): Child[] {
-    return rawMembers
-      //.filter(m => (m.age ?? 0) <= 18)
-      .filter(m => m.statusCode != 1)
-      .map((m, index) => {
-        return {
-          id: `${index}`,
-          name: m.name,
-          gender: 'male',
-          age: m.age ?? 0,
-          educationGroup: m.educationGroup // 🔥 זה הקשר
-        };
-      });
+    return (
+      rawMembers
+        //.filter(m => (m.age ?? 0) <= 18)
+        .filter((m) => m.statusCode != 1)
+        .map((m, index) => {
+          return {
+            id: `${index}`,
+            name: m.name,
+            gender: 'male',
+            age: m.age ?? 0,
+            educationGroup: m.educationGroup, // 🔥 זה הקשר
+          };
+        })
+    );
   }
 
   private flipParentheses(text: string): string {
@@ -178,38 +194,38 @@ export class FamilyService {
   }
 
   private normalizeSpecialBudgets(data: any[]) {
-  if (!data) return [];
+    if (!data) return [];
 
-    return data.map(r => ({
-        member_code: r.member_code,
-        first_name: this.clean(r.first_name),
-        last_name: this.flipParentheses(this.clean(r.last_name)),
-        age: this.toNumber(r.age),
-        
-        bar_mitzvah_amount: this.toNumber(r.bar_mitzvah_amount),
-        bar_mitzvah_year: this.toNumber(r.bar_mitzvah_year),
+    return data.map((r) => ({
+      member_code: r.member_code,
+      first_name: this.clean(r.first_name),
+      last_name: this.flipParentheses(this.clean(r.last_name)),
+      age: this.toNumber(r.age),
 
-        bat_mitzvah_amount: this.toNumber(r.bat_mitzvah_amount),
-        bat_mitzvah_year: this.toNumber(r.bat_mitzvah_year),
+      bar_mitzvah_amount: this.toNumber(r.bar_mitzvah_amount),
+      bar_mitzvah_year: this.toNumber(r.bar_mitzvah_year),
 
-        wedding_grant: this.toNumber(r.wedding_grant),
-        wedding_year: this.toNumber(r.wedding_year),
+      bat_mitzvah_amount: this.toNumber(r.bat_mitzvah_amount),
+      bat_mitzvah_year: this.toNumber(r.bat_mitzvah_year),
 
-        study_grant: this.toNumber(r.study_grant),
-        study_year: this.toNumber(r.study_year),
+      wedding_grant: this.toNumber(r.wedding_grant),
+      wedding_year: this.toNumber(r.wedding_year),
 
-        paint_grant: this.toNumber(r.paint_grant),
-        paint_year: this.toNumber(r.paint_year),
+      study_grant: this.toNumber(r.study_grant),
+      study_year: this.toNumber(r.study_year),
 
-        leaving_grant_25y: this.toNumber(r.leaving_grant_25y),
-        leaving_grant_25y_year: this.toNumber(r.leaving_grant_25y_year),
+      paint_grant: this.toNumber(r.paint_grant),
+      paint_year: this.toNumber(r.paint_year),
 
-        leaving_grant_age_65: this.toNumber(r.leaving_grant_age_65),
-        leaving_grant_age_65_year: this.toNumber(r.leaving_grant_age_65_year),
+      leaving_grant_25y: this.toNumber(r.leaving_grant_25y),
+      leaving_grant_25y_year: this.toNumber(r.leaving_grant_25y_year),
 
-        shares_amount: this.toNumber(r.shares_amount)
-      }));
-  } 
+      leaving_grant_age_65: this.toNumber(r.leaving_grant_age_65),
+      leaving_grant_age_65_year: this.toNumber(r.leaving_grant_age_65_year),
+
+      shares_amount: this.toNumber(r.shares_amount),
+    }));
+  }
 
   private clean(value: string | undefined): string {
     if (!value) return '';

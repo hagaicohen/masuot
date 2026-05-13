@@ -10,8 +10,14 @@ import { SalariesComponent } from './salaries/salaries.component';
 @Component({
   selector: 'app-base-family',
   standalone: true,
-  imports: [CommonModule, AccordionPanelComponent, MembersComponent, ChildrenComponent, SalariesComponent],
-  templateUrl: './base-family.component.html'
+  imports: [
+    CommonModule,
+    AccordionPanelComponent,
+    MembersComponent,
+    ChildrenComponent,
+    SalariesComponent,
+  ],
+  templateUrl: './base-family.component.html',
 })
 export class BaseFamilyComponent {
   constructor(private familyService: FamilyService) {}

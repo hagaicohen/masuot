@@ -8,10 +8,9 @@ import { SimulatorService } from '../../../../services/simulator.service';
   selector: 'app-income',
   standalone: true,
   imports: [CommonModule, AccordionPanelComponent],
-  templateUrl: './income.component.html'
+  templateUrl: './income.component.html',
 })
 export class IncomeComponent {
-
   constructor(private familyService: FamilyService) {}
 
   private root = inject(FamilyService).family;
@@ -29,11 +28,19 @@ export class IncomeComponent {
     const netSalary = this.familyService.round(f.netSalary ?? 0);
     const updatedNetSalary = this.familyService.round(f.updatedNetSalary ?? 0);
 
-    const childAllowances = this.familyService.round(f.inputs?.child_allowance ?? 0);
+    const childAllowances = this.familyService.round(
+      f.inputs?.child_allowance ?? 0,
+    );
 
-    const pensionAddition = this.familyService.round(f.simulation?.family?.pension_addition ?? 0);
-    const survivorPension = this.familyService.round(f.simulation?.family?.survivor_pension ?? 0);
-    const oldAgePension = this.familyService.round(f.simulation?.family?.old_age_pension ?? 0);
+    const pensionAddition = this.familyService.round(
+      f.simulation?.family?.pension_addition ?? 0,
+    );
+    const survivorPension = this.familyService.round(
+      f.simulation?.family?.survivor_pension ?? 0,
+    );
+    const oldAgePension = this.familyService.round(
+      f.simulation?.family?.old_age_pension ?? 0,
+    );
 
     const incomeForStandard = Number(f.incomeForStandard ?? 0);
     const threshold = Number(f.rules?.F21 ?? 0);
@@ -49,11 +56,11 @@ export class IncomeComponent {
 
     const totalIncome = this.familyService.round(
       updatedNetSalary +
-      childAllowances +
-      pensionAddition +
-      survivorPension +
-      oldAgePension +
-      takeHomeAddition
+        childAllowances +
+        pensionAddition +
+        survivorPension +
+        oldAgePension +
+        takeHomeAddition,
     );
 
     return {
@@ -64,7 +71,7 @@ export class IncomeComponent {
       survivorPension,
       oldAgePension,
       takeHomeAddition,
-      totalIncome
+      totalIncome,
     };
   }
 

@@ -8,7 +8,7 @@ import { FamilyService } from '../../../../services/family.service';
   selector: 'app-taxes',
   standalone: true,
   imports: [CommonModule, AccordionPanelComponent],
-  templateUrl: './taxes.component.html'
+  templateUrl: './taxes.component.html',
 })
 export class TaxesComponent {
   constructor(private familyService: FamilyService) {}
@@ -17,10 +17,10 @@ export class TaxesComponent {
   get badge() {
     const r = this.result();
     let tx = 0;
-    if (r != null){
+    if (r != null) {
       tx = this.familyService.round(r!.taxes);
     }
-    
+
     return tx.toLocaleString('he-IL') + ' ₪';
   }
 }

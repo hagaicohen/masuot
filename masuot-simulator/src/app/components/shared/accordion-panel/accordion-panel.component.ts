@@ -5,13 +5,15 @@ import { CommonModule } from '@angular/common';
   selector: 'app-accordion-panel',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './accordion-panel.component.html'
+  templateUrl: './accordion-panel.component.html',
 })
 export class AccordionPanelComponent {
-  @Input() title    = '';
-  @Input() badge    = '';
-  @Input() level    = 1;
-  @Input() open     = false;
+  @Input() title = '';
+  @Input() badge = '';
+  @Input() level = 1;
+  @Input() open = false;
   @Input() badgeRed = false;
-  toggle() { this.open = !this.open; }
+  toggle() {
+    this.open = !this.open;
+  }
 }

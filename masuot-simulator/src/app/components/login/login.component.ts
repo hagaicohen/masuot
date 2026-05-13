@@ -8,10 +8,9 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [FormsModule, CommonModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-
   code = '';
   password = '';
   error = '';
@@ -38,9 +37,7 @@ export class LoginComponent {
       // אם תרצה בעתיד:
       // ניווט אחרי התחברות
       // this.router.navigate(['/dashboard']);
-
     } catch (err: any) {
-
       // 🔥 טיפול חכם בשגיאות
       if (typeof err === 'string') {
         this.error = err;
@@ -51,7 +48,6 @@ export class LoginComponent {
       } else {
         this.error = 'שגיאה בהתחברות. נסה שוב.';
       }
-
     } finally {
       this.loading = false;
     }

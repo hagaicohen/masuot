@@ -1,6 +1,5 @@
 <app-accordion-panel title="חברים" [badge]="badge" [level]="2">
   <div class="inner-padded">
-
     <table class="members-table">
       <thead>
         <tr>
@@ -17,11 +16,10 @@
           <td>{{ m.name }}</td>
           <td>{{ m.age }}</td>
           <td>
-            {{ m.status === 'employed' ? 'עובד/ת' : m.status }}
+            {{ m.status === "employed" ? "עובד/ת" : m.status }}
           </td>
         </tr>
       </tbody>
     </table>
-
   </div>
 </app-accordion-panel>

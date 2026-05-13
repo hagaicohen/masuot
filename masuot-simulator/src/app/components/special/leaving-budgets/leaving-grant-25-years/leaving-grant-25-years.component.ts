@@ -9,10 +9,9 @@ import { SpecialBudget } from '../../../../models/simulator.models';
   standalone: true,
   imports: [CommonModule, AccordionPanelComponent],
   templateUrl: './leaving-grant-25-years.component.html',
-  styleUrl: './leaving-grant-25-years.component.css'
+  styleUrl: './leaving-grant-25-years.component.css',
 })
 export class LeavingGrant25YearsComponent {
-
   private familyService = inject(FamilyService);
 
   // 🔥 רשימה לפי חברים (כמו שאר הקומפוננטות)
@@ -26,15 +25,13 @@ export class LeavingGrant25YearsComponent {
         name: `${x.first_name} ${x.last_name}`,
         amount: x.leaving_grant_25y,
         year: x.leaving_grant_25y_year,
-        age: x.age
+        age: x.age,
       }))
       .sort((a, b) => a.year - b.year);
   });
 
   // 🔥 סכום כולל
-  total = computed(() =>
-    this.grants().reduce((s, x) => s + x.amount, 0)
-  );
+  total = computed(() => this.grants().reduce((s, x) => s + x.amount, 0));
 
   private formatMoney(value: number): string {
     return value.toLocaleString('he-IL') + ' ₪';
@@ -42,6 +39,6 @@ export class LeavingGrant25YearsComponent {
 
   get badge() {
     const t = this.total();
-      return this.formatMoney(t);
+    return this.formatMoney(t);
   }
 }

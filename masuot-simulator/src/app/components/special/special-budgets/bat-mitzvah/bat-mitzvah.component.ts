@@ -4,20 +4,17 @@ import { FamilyService } from '../../../../services/family.service';
 import { AccordionPanelComponent } from '../../../shared/accordion-panel/accordion-panel.component';
 import { SpecialBudget } from '../../../../models/simulator.models';
 
-
 @Component({
   selector: 'app-bat-mitzvah',
   standalone: true,
-  imports: [CommonModule,AccordionPanelComponent],
+  imports: [CommonModule, AccordionPanelComponent],
   templateUrl: './bat-mitzvah.component.html',
-  styleUrl: './bat-mitzvah.component.css'
+  styleUrl: './bat-mitzvah.component.css',
 })
 export class BatMitzvahComponent {
   private familyService = inject(FamilyService);
 
-  total = computed(() =>
-    this.batMitzvah().reduce((s, x) => s + x.amount, 0)
-  );
+  total = computed(() => this.batMitzvah().reduce((s, x) => s + x.amount, 0));
 
   batMitzvah = computed(() => {
     const f = this.familyService.family();
@@ -29,7 +26,7 @@ export class BatMitzvahComponent {
         name: `${x.first_name} ${x.last_name}`,
         amount: x.bat_mitzvah_amount,
         year: x.bat_mitzvah_year,
-        age: x.age
+        age: x.age,
       }))
       .sort((a, b) => a.year - b.year);
   });

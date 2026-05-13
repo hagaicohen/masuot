@@ -10,13 +10,12 @@ import { SimulatorService } from '../../../services/simulator.service';
   imports: [
     AccordionPanelComponent,
     LeavingGrant25YearsComponent,
-    LeavingGrantAge65Component
+    LeavingGrantAge65Component,
   ],
   templateUrl: './leaving-budgets.component.html',
-  styleUrl: './leaving-budgets.component.css'
+  styleUrl: './leaving-budgets.component.css',
 })
 export class LeavingBudgetsComponent {
-
   private simulator = inject(SimulatorService);
 
   total = this.simulator.leavingGrantsTotal;

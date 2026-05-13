@@ -1,1 +1,7 @@
 <router-outlet></router-outlet>
+
+@if (loading.loading()) {
+  <div class="global-loading">
+    <div class="spinner"></div>
+  </div>
+}
