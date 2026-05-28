@@ -90,7 +90,7 @@ export class SalariesComponent {
 
   getSortedMembers() {
     return (this.family()?.members ?? [])
-      .filter((m) => (m.age ?? 0) >= 18)
+      .filter((m) => (m.statusCode == 1))
       .sort((a, b) => (b.age ?? 0) - (a.age ?? 0));
   }
 
