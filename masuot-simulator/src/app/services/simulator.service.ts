@@ -136,42 +136,56 @@ export class SimulatorService {
   // MUTUAL RESPONSIBILITY
   // =========================
 
-  private calcMutualResponsibility(
-    updatedNetSalary: number,
-    pension: number,
-    rules: any,
-  ): number {
-    const income = Number(updatedNetSalary || 0) + Number(pension || 0);
+private calcMutualResponsibility(
+  updatedNetSalary: number,
+  pension: number,
+  rules: any,
+): number {
 
-    const k5 = Number(rules?.K5 ?? 0);
+  const income =
+    Number(updatedNetSalary || 0) +
+    Number(pension || 0);
 
-    const l5 = Number(rules?.L5 ?? 0);
+  const k5 = Number(rules?.K5 ?? 0);
 
-    const k6 = Number(rules?.K6 ?? 0);
+  const l5 = Number(rules?.L5 ?? 0);
 
-    const j6 = Number(rules?.J6 ?? 0);
+  const k6 = Number(rules?.K6 ?? 0);
 
-    const l6 = Number(rules?.L6 ?? 0);
+  const j6 = Number(rules?.J6 ?? 0);
 
-    const m5 = Number(rules?.M5 ?? 0);
+  const l6 = Number(rules?.L6 ?? 0);
 
-    const k7 = Number(rules?.K7 ?? 0);
+  const m5 = Number(rules?.M5 ?? 0);
 
-    const j7 = Number(rules?.J7 ?? 0);
+  const k7 = Number(rules?.K7 ?? 0);
 
-    const l7 = Number(rules?.L7 ?? 0);
+  const j7 = Number(rules?.J7 ?? 0);
 
-    const m6 = Number(rules?.M6 ?? 0);
+  const l7 = Number(rules?.L7 ?? 0);
 
-    if (income <= k5) return income * l5;
+  const m6 = Number(rules?.M6 ?? 0);
 
-    if (income <= k6) return m5 + (income - j6) * l6;
+  if (income <= k5) {
 
-    if (income <= k7) return m6 + (income - j7) * l7;
+    return income * l5;
 
-    return 0;
   }
 
+  if (income <= k6) {
+
+    return m5 + (income - j6) * l6;
+
+  }
+
+  if (income <= k7) {
+
+    return m6 + (income - j7) * l7;
+
+  }
+
+  return 0;
+}
   // =========================
   // EDUCATION
   // =========================
@@ -408,23 +422,6 @@ export class SimulatorService {
         f.rules || {},
       );
 
-      /*console.log('=== PAYROLL CHECK ===');
-
-      console.log({
-        name: member.name,
-
-        gross,
-
-        excelNet,
-
-        calculatedNet: Math.round(calculatedNet),
-
-        diff: Math.round(calculatedNet - excelNet),
-
-        creditPoints: member.credit_points,
-
-        incomeType: member.income_type,
-      });*/
     }
 
     const netSalaryParents = this.netSalaryParents();
@@ -433,11 +430,73 @@ export class SimulatorService {
 
     const taka = this.calcTaka(f, updatedNetSalary);
 
-    const mutualResponsibility = this.calcMutualResponsibility(
+    const pension =
+  Number(
+    f.inputs?.pension ??
+    f.pension ??
+    0
+  );
+
+const mutualWithoutPension =
+  this.calcMutualResponsibility(
+    updatedNetSalary,
+    0,
+    f.rules,
+  );
+
+const mutualWithPension =
+  this.calcMutualResponsibility(
+    updatedNetSalary,
+    pension,
+    f.rules,
+  );
+
+console.log(
+  '=== MUTUAL RESPONSIBILITY CHECK ===',
+  {
+    familyCode: f.budget_code,
+
+    updatedNetSalary,
+
+    pensionRoot: f.pension,
+
+    pensionInputs: f.inputs?.pension,
+
+    pensionUsed: pension,
+
+    incomeWithoutPension:
       updatedNetSalary,
-      Number(f.pension ?? 0),
-      f.rules,
-    );
+
+    incomeWithPension:
+      updatedNetSalary + pension,
+
+    mutualWithoutPension,
+
+    mutualWithPension,
+
+    diff:
+      mutualWithPension -
+      mutualWithoutPension,
+
+    rules: {
+      K5: f.rules?.K5,
+      L5: f.rules?.L5,
+
+      J6: f.rules?.J6,
+      K6: f.rules?.K6,
+      L6: f.rules?.L6,
+      M5: f.rules?.M5,
+
+      J7: f.rules?.J7,
+      K7: f.rules?.K7,
+      L7: f.rules?.L7,
+      M6: f.rules?.M6,
+    },
+  }
+);
+
+const mutualResponsibility =
+  mutualWithPension;
 
     const mutualCap = Number(f.rules?.F4 ?? Infinity);
 
