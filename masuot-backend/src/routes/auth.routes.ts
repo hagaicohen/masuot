@@ -4,7 +4,10 @@ import { login, logout } from '../controllers/auth.controller';
 const router = Router();
 
 router.post('/login', (req, res, next) => {
-  console.log('Login route hit:', req.body);
+  console.log('Login attempt:', {
+  budgetCode: req.body.budgetCode,
+  hasPassword: !!req.body.password
+});
   next();
 }, login);
 
