@@ -27,7 +27,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     const user = result.rows[0];
 
-    console.log('password received:', password);
+    //console.log('password received:', password);
     console.log('hash from DB:', user.password_hash);
 
     const isMatch = await bcrypt.compare(password, user.password_hash);
