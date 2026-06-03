@@ -21,8 +21,18 @@ app.use('/api/auth', authRoutes);
 app.use('/api/family', familyRoutes);
 
 // Health check
+// Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date() });
+
+  console.log(
+    `[HEALTH CHECK] ${new Date().toISOString()} | IP: ${req.ip} | User-Agent: ${req.get('user-agent')}`
+  );
+
+  res.json({
+    status: 'ok',
+    timestamp: new Date()
+  });
+
 });
 
 // Start server
