@@ -2,7 +2,8 @@ import psycopg2
 from psycopg2.extras import execute_values
 from openpyxl import load_workbook
 
-EXCEL_PATH = "masuot-data.xlsx"
+#EXCEL_PATH = "masuot-data.xlsx"
+EXCEL_PATH = r"c:\users\hagai\Downloads\פרק א - תקציבים והוצאות גרסה 27 להצגה.xlsx"
 
 def connect():
     return psycopg2.connect(
