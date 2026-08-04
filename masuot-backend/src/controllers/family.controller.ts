@@ -262,6 +262,9 @@ function normalizeFamily(raw: any) {
     child_allowance:
       Number(raw.child_allowance || 0),
 
+    additional_allowances:
+      Number(raw.additional_allowances || 0),
+
     community_tax:
       Number(raw.community_tax || 0),
 

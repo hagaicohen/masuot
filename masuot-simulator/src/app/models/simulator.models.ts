@@ -108,6 +108,7 @@ export interface SimulationResult {
   survivors: number;
   oldAgePension: number;
   childAllowances: number;
+  additionalAllowances: number;
   savingsFund: number;
   pensionAddition: number;
 

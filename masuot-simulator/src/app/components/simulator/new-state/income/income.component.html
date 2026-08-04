@@ -37,6 +37,13 @@
       </div>
 
       <div class="leaf">
+      <span class="leaf-label">קצבאות נוספות</span>
+      <span class="leaf-val green">
+        {{ result()!.additionalAllowances | number: "1.0-0" }} ₪
+      </span>
+    </div>
+
+      <div class="leaf">
         <span class="leaf-label">תקציב קיום הוגן – (תק"ה)</span>
         <span class="leaf-val green"
           >{{ result()!.taka | number: "1.0-0" }} ₪</span

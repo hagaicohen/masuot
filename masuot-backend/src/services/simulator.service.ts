@@ -41,6 +41,8 @@ export const getSimulationData = async (budget_code: string) => {
     travel,
     periodic_grant,
     special_help,
-    current_state
+    current_state,
+
+    additional_allowances: Number(family.additional_allowances || 0)
   };
 };

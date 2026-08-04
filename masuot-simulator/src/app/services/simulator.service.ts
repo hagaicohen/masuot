@@ -244,7 +244,8 @@ private calcMutualResponsibility(
       Number(inputs.pension ?? 0) +
       Number(inputs.survivors ?? 0) +
       Number(inputs.old_age_allowance ?? 0) +
-      Number(inputs.child_allowance ?? 0);
+      Number(inputs.child_allowance ?? 0) + 
+      Number(f.simulation?.additionalAllowances ?? 0);
 
     const incomeForStandard = incomeSum / familyStandard;
 
@@ -513,6 +514,7 @@ const mutualResponsibility =
       Number(f.inputs?.survivors ?? 0) +
       Number(f.inputs?.old_age_allowance ?? 0) +
       Number(f.inputs?.child_allowance ?? 0) +
+      Number(f.simulation?.additionalAllowances ?? 0) +
       taka;
 
     const educationExpensesRaw = this.calcEducation(f);
@@ -619,6 +621,7 @@ const mutualResponsibility =
       Number(f.inputs?.survivors ?? 0) +
       Number(f.inputs?.old_age_allowance ?? 0) +
       Number(f.inputs?.child_allowance ?? 0) +
+      Number(f.simulation?.additionalAllowances ?? 0);
       this.calcTaka(f, updatedNetSalary);
 
     const newExpenses = educationNet + healthExpenses + taxes;
@@ -679,6 +682,8 @@ const mutualResponsibility =
       diff: currentState - netDisposableIncome,
 
       childAllowances,
+
+      additionalAllowances: Number(f.inputs?.additional_allowances ?? f.family?.additional_allowances ?? 0),
 
       pensionAddition: Number(f.inputs?.pension ?? 0),
 

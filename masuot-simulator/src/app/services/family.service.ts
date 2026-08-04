@@ -94,6 +94,7 @@ export class FamilyService {
           old_age_allowance: Number(data.inputs?.old_age_allowance),
           flow_income: Number(data.inputs?.flow_income),
           health_cost: 0,
+          additional_allowances: Number(data.inputs?.additional_allowances ?? data.family?.additional_allowances ?? 0),
         },
 
         simulation: {
@@ -103,6 +104,7 @@ export class FamilyService {
           travel: Number(sim?.travel),
           periodic_grant: Number(sim?.periodic_grant),
           special_help: Number(sim?.special_help),
+          additionalAllowances: Number(sim?.additional_allowances ?? 0),
 
           current_state:
             Number(sim?.budget_distribution) +
