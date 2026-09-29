@@ -26,7 +26,7 @@ app.use('/api/family', familyRoutes);
 app.get('/api/health', async (req, res) => {
   try {
     // נגיעה אמיתית ב-DB כדי למנוע מ-Supabase להיכנס ל-pause
-    await pool.query('SELECT 1');
+    await pool.query('SELECT budget_code FROM families LIMIT 1');
 
     console.log(
       `[HEALTH CHECK] ${new Date().toISOString()} | DB OK | IP: ${req.ip} | User-Agent: ${req.get('user-agent')}`
