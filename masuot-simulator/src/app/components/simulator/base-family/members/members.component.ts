@@ -22,4 +22,21 @@ export class MembersComponent {
       return m.statusCode == 1;
     });
   }
+
+  // Display only: years.months (not decimal years)
+  formatAge(age: number | null | undefined): string {
+    if (age == null || !Number.isFinite(Number(age)) || Number(age) < 0) {
+      return '—';
+    }
+
+    const value = Number(age);
+    const years = Math.floor(value);
+    const months = Math.min(
+      11,
+      Math.floor((value - years) * 12 + 1e-9)
+    );
+
+    return `${years}.${String(months).padStart(2, '0')}`;
+  }
+
 }

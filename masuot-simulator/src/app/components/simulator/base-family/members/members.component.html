@@ -14,7 +14,7 @@
         <tr *ngFor="let m of adultMembers; let i = index">
           <td>{{ i + 1 }}</td>
           <td>{{ m.name }}</td>
-          <td>{{ m.age }}</td>
+          <td>{{ formatAge(m.age) }}</td>
           <td>
             {{ m.status === "employed" ? "עובד/ת" : m.status }}
           </td>
