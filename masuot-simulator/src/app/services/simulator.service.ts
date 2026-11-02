@@ -136,56 +136,56 @@ export class SimulatorService {
   // MUTUAL RESPONSIBILITY
   // =========================
 
-private calcMutualResponsibility(
-  updatedNetSalary: number,
-  pension: number,
-  rules: any,
-): number {
+  private calcMutualResponsibility(
+    updatedNetSalary: number,
+    pension: number,
+    rules: any,
+  ): number {
 
-  const income =
-    Number(updatedNetSalary || 0) +
-    Number(pension || 0);
+    const income =
+      Number(updatedNetSalary || 0) +
+      Number(pension || 0);
 
-  const k5 = Number(rules?.K5 ?? 0);
+    const k5 = Number(rules?.K5 ?? 0);
 
-  const l5 = Number(rules?.L5 ?? 0);
+    const l5 = Number(rules?.L5 ?? 0);
 
-  const k6 = Number(rules?.K6 ?? 0);
+    const k6 = Number(rules?.K6 ?? 0);
 
-  const j6 = Number(rules?.J6 ?? 0);
+    const j6 = Number(rules?.J6 ?? 0);
 
-  const l6 = Number(rules?.L6 ?? 0);
+    const l6 = Number(rules?.L6 ?? 0);
 
-  const m5 = Number(rules?.M5 ?? 0);
+    const m5 = Number(rules?.M5 ?? 0);
 
-  const k7 = Number(rules?.K7 ?? 0);
+    const k7 = Number(rules?.K7 ?? 0);
 
-  const j7 = Number(rules?.J7 ?? 0);
+    const j7 = Number(rules?.J7 ?? 0);
 
-  const l7 = Number(rules?.L7 ?? 0);
+    const l7 = Number(rules?.L7 ?? 0);
 
-  const m6 = Number(rules?.M6 ?? 0);
+    const m6 = Number(rules?.M6 ?? 0);
 
-  if (income <= k5) {
+    if (income <= k5) {
 
-    return income * l5;
+      return income * l5;
 
+    }
+
+    if (income <= k6) {
+
+      return m5 + (income - j6) * l6;
+
+    }
+
+    if (income <= k7) {
+
+      return m6 + (income - j7) * l7;
+
+    }
+
+    return 0;
   }
-
-  if (income <= k6) {
-
-    return m5 + (income - j6) * l6;
-
-  }
-
-  if (income <= k7) {
-
-    return m6 + (income - j7) * l7;
-
-  }
-
-  return 0;
-}
   // =========================
   // EDUCATION
   // =========================
@@ -245,7 +245,7 @@ private calcMutualResponsibility(
       Number(inputs.survivors ?? 0) +
       Number(inputs.old_age_allowance ?? 0) +
       Number(inputs.child_allowance ?? 0) + 
-      Number(f.simulation?.additionalAllowances ?? 0);
+      Number(inputs.additional_allowances ?? 0);
 
     const incomeForStandard = incomeSum / familyStandard;
 
@@ -507,14 +507,15 @@ const mutualResponsibility =
     );
 
     const childAllowances = Number(f.inputs?.child_allowance ?? 0);
+    const additionalAllowances = Number(f.inputs?.additional_allowances ?? 0);
 
     const totalIncome =
       updatedNetSalary +
       Number(f.inputs?.pension ?? 0) +
       Number(f.inputs?.survivors ?? 0) +
       Number(f.inputs?.old_age_allowance ?? 0) +
-      Number(f.inputs?.child_allowance ?? 0) +
-      Number(f.simulation?.additionalAllowances ?? 0) +
+      childAllowances +
+      additionalAllowances +
       taka;
 
     const educationExpensesRaw = this.calcEducation(f);
@@ -620,9 +621,9 @@ const mutualResponsibility =
       Number(f.inputs?.pension ?? 0) +
       Number(f.inputs?.survivors ?? 0) +
       Number(f.inputs?.old_age_allowance ?? 0) +
-      Number(f.inputs?.child_allowance ?? 0) +
-      Number(f.simulation?.additionalAllowances ?? 0);
-      this.calcTaka(f, updatedNetSalary);
+      childAllowances +
+      additionalAllowances +
+      taka;
 
     const newExpenses = educationNet + healthExpenses + taxes;
 
