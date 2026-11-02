@@ -2,8 +2,8 @@ import psycopg2
 from psycopg2.extras import execute_values
 from openpyxl import load_workbook
 
-#EXCEL_PATH = "masuot-data.xlsx"
-EXCEL_PATH = r"c:\users\hagai\Downloads\פרק א - תקציבים והוצאות גרסה 27 להצגה.xlsx"
+EXCEL_PATH = "masuot-data.xlsx"
+#EXCEL_PATH = r"c:\users\hagai\Downloads\פרק א - תקציבים והוצאות גרסה 27 להצגה.xlsx"
 
 def connect():
     return psycopg2.connect(
@@ -79,6 +79,37 @@ def main():
     summary = wb["ריכוז נתונים"]
 
     members_sheet = wb["חברים"]
+
+    from collections import defaultdict
+
+    duplicates = defaultdict(list)
+
+    for row_num, row in enumerate(
+        members_sheet.iter_rows(min_row=6),
+        start=6
+    ):
+        budget_code = row[7].value
+        member_code = norm_id(row[0].value)
+
+        if not is_valid(budget_code) or not is_valid(member_code):
+            continue
+
+        key = (str(budget_code).strip(), member_code)
+        duplicates[key].append(row_num)
+
+    print("\n=== DUPLICATE MEMBER KEYS ===")
+
+    found = False
+
+    for key, rows in duplicates.items():
+        if len(rows) > 1:
+            print(f"Budget: {key[0]}, Member: {key[1]}, Excel rows: {rows}")
+            found = True
+
+    if found:
+        raise SystemExit("Import stopped: duplicate member keys found")
+
+    print("No duplicate member keys found.")
 
     salary_sheet = wb["הכנסות שכר "]
 
