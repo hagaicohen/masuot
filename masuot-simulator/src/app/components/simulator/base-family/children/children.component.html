@@ -1,3 +1,4 @@
+
 <app-accordion-panel title="ילדים" [badge]="badge" [level]="2">
   <div class="inner-padded">
     <table class="members-table">
@@ -14,7 +15,7 @@
         <tr *ngFor="let c of childrenSorted; let i = index">
           <td>{{ i + 1 }}</td>
           <td>{{ c.name }}</td>
-          <td>{{ c.age }}</td>
+          <td>{{ formatAge(c.age) }}</td>
           <td>{{ c.educationGroup }}</td>
         </tr>
       </tbody>
