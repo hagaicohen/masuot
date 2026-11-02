@@ -1,3 +1,4 @@
+
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SimulatorService } from '../../../../../services/simulator.service';
@@ -11,9 +12,7 @@ import { AccordionPanelComponent } from '../../../../shared/accordion-panel/acco
   templateUrl: './health.component.html',
 })
 export class HealthComponent {
-  Math = Math;
-
-  family = inject(FamilyService).family; // 🔥 הוספנו
+  family = inject(FamilyService).family;
   result = inject(SimulatorService).result;
 
   get badge() {
@@ -21,14 +20,6 @@ export class HealthComponent {
 
     if (!r) return '';
 
-    // 🔥 ADDED — normalize participation (always positive)
-    const participation = Math.abs(
-      Number(this.family()?.inputs?.health_participation ?? 0),
-    );
-
-    // 🔥 UPDATED — subtract participation
-    const total = Math.round((r.healthExpenses ?? 0) - participation);
-
-    return total.toLocaleString('he-IL') + ' ₪';
+    return Math.round(r.healthExpenses ?? 0).toLocaleString('he-IL') + ' ₪';
   }
 }
