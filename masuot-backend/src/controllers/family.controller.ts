@@ -345,6 +345,9 @@ function mapToInputs(
     child_allowance:
       family.child_allowance,
 
+    additional_allowances:
+      family.additional_allowances,
+
     income_for_standard:
       family.income_for_standard,
 
